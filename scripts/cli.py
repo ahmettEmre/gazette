@@ -22,7 +22,8 @@ def usage():
     print("usage: ./gazette <command> [options]      (Windows terminal: gazette <command>)\n")
     for name, (_, desc) in COMMANDS.items():
         print(f"  {name:<9} {desc}")
-    print("\nMost of the time you only need Claude Code: /gazette-setup once, then /gazette.")
+    print("\nMost of the time you only need your AI agent: /gazette-setup once, then /gazette "
+          "(Codex: $gazette-setup, $gazette).")
 
 
 def main():

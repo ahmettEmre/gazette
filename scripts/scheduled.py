@@ -2,10 +2,10 @@
 
 1. If an edition was published in the last `schedule.skip_if_recent_hours` (default 12), no new one is
    written: that edition is delivered instead (if it was not yet). This saves your quota.
-2. Otherwise it waits for the network and runs Claude Code headless: claude -p "/gazette scheduled".
-   Permissions are limited to this project's collect/read/publish/learn commands, web search/fetch and
-   writing into data/editions/. Claude cannot edit scripts, read files outside this folder, run other
-   commands or send e-mail. Delivery is done here, by plain Python, after Claude has finished.
+2. Otherwise it waits for the network and runs your AI agent headless (run.engine; see scripts/agents.py),
+   e.g. claude -p "/gazette scheduled". Permissions are as narrow as the agent allows: this project's
+   collect/read/publish/learn commands, web search/fetch and writing in this folder. The agent never sends
+   e-mail: delivery is done here, by plain Python, after it has finished.
 3. If no new edition appeared, you get a short failure e-mail (when e-mail delivery is on).
 
 Options (for testing): --prompt "<text>" replaces the prompt · --dry-run prints the command only.
@@ -18,14 +18,11 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import agents  # noqa: E402
 from common import EDITIONS, LOGS, ROOT, STATE, fetch, load_json, load_settings, now_utc, parse_date  # noqa: E402
 
 LOG = LOGS / "scheduled.log"
 LOCK = STATE / "scheduled.lock"
-ALLOWED = [
-    "Bash(./gazette collect:*)", "Bash(./gazette read:*)", "Bash(./gazette publish:*)", "Bash(./gazette learn:*)",
-    "Bash(tail:*)", "Bash(head:*)", "Edit(./data/editions/**)", "WebSearch", "WebFetch", "Skill",
-]
 TIMEOUT_MIN = 90
 
 
@@ -70,21 +67,20 @@ def deliver(*args):
     return r.returncode
 
 
-def claude_command(cfg, rec, prompt):
-    claude = rec.get("claude") or "claude"
-    cmd = [claude, "-p", prompt, "--allowedTools", *ALLOWED]
-    model = (cfg.get("run") or {}).get("model")
-    if model:
-        cmd += ["--model", model]
-    return cmd
+def agent_command(cfg, rec, prompt):
+    eid = agents.engine_id(cfg)
+    exe = (rec.get("agent") or rec.get("claude")) if rec.get("engine", "claude") == eid else None
+    return agents.headless_command(eid, exe or agents.find(eid) or agents.ENGINES[eid]["exe"], prompt,
+                                   (cfg.get("run") or {}).get("model"))
 
 
 def main():
     os.chdir(ROOT)
     cfg = load_settings()
     rec = load_json(STATE / "schedule.json", {})
-    prompt = sys.argv[sys.argv.index("--prompt") + 1] if "--prompt" in sys.argv else "/gazette scheduled"
-    cmd = claude_command(cfg, rec, prompt)
+    default = agents.scheduled_prompt(agents.engine_id(cfg))
+    prompt = sys.argv[sys.argv.index("--prompt") + 1] if "--prompt" in sys.argv else default
+    cmd = agent_command(cfg, rec, prompt)
     if "--dry-run" in sys.argv:
         print(" ".join(f'"{c}"' if " " in c else c for c in cmd))
         return
@@ -135,8 +131,8 @@ def run(cfg, rec, cmd, prompt):
         except subprocess.TimeoutExpired:
             code = "timeout"
         except FileNotFoundError:
-            code = f"claude not found at {cmd[0]} (run ./gazette schedule install again)"
-    log(f"claude finished in {(time.time() - started) / 60:.1f} min (exit {code})")
+            code = f"{cmd[0]} not found (run ./gazette schedule install again)"
+    log(f"{agents.info(cfg)['name']} finished in {(time.time() - started) / 60:.1f} min (exit {code})")
 
     after = newest_edition()
     if "--prompt" in sys.argv:

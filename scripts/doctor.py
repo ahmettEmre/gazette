@@ -23,21 +23,27 @@ def line(ok, text, hint=""):
 
 def main():
     utf8_stdout()
-    from schedule import find_claude, status as schedule_status
+    import agents
+    from schedule import status as schedule_status
     from secret import get_password
 
     v = sys.version_info
     line(v >= (3, 9), f"Python {v.major}.{v.minor}.{v.micro} on {platform.system()}", "" if v >= (3, 9) else "install Python 3.9+")
-    claude = find_claude()
-    if claude:
-        r = subprocess.run([claude, "--version"], capture_output=True, text=True)
-        line(True, f"Claude Code {r.stdout.strip() or '?'} ({claude})")
-    else:
-        line(False, "Claude Code not found", "install it: https://code.claude.com/docs/en/setup")
-
     cfg = load_json(SETTINGS, None)
+    ids = [agents.engine_id(cfg)] if cfg else list(agents.ENGINES)  # before setup: any supported agent will do
+    found = [(e, x) for e, x in ((e, agents.find(e)) for e in ids) if x]
+    for e, exe in found:
+        try:
+            ver = subprocess.run([exe, "--version"], capture_output=True, text=True, timeout=30).stdout.strip()
+        except Exception:
+            ver = ""
+        line(True, f"{agents.ENGINES[e]['name']} {ver.splitlines()[0] if ver else '?'} ({exe})")
+    if not found:
+        line(False, " / ".join(agents.ENGINES[e]["name"] for e in ids) + " not found",
+             "install it: " + " · ".join(agents.ENGINES[e]["install"] for e in ids))
+
     if not cfg:
-        line(False, "config/settings.json is missing", "open Claude Code in this folder and run /gazette-setup")
+        line(False, "config/settings.json is missing", "open your AI agent in this folder and run /gazette-setup")
         sys.exit(1)
     secs = sections(cfg)
     line(bool(secs) and secs[0]["id"] == TOP, f"language {cfg.get('language', '?')} · {len(secs)} sections",

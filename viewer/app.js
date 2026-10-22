@@ -5,7 +5,7 @@
   // Only what the page needs before the first edition exists; everything else comes from data/site.js.
   const FALLBACK = {
     empty_title: 'No editions yet',
-    empty_body: 'Open Claude Code in this folder and type /gazette-setup, then /gazette.',
+    empty_body: 'Open your AI agent (Claude Code, Codex or Antigravity) in this folder and type /gazette-setup, then /gazette.',
     error_title: 'Something went wrong',
     error_edition: 'Could not load the edition file: {file}',
     hype: ['', '', '', '', '', ''],
@@ -351,7 +351,7 @@ ${items.length ? `<section class="section">${items.map(card).join('')}</section>
     return refreshCard(el);
   }
   async function ask(el) {
-    const cmd = `/gazette explain ${el.dataset.uid}`;
+    const cmd = `${S.site.cmd || '/gazette'} explain ${el.dataset.uid}`;
     toast((await copy(cmd)) ? t('copied', { cmd }) : t('copy_failed', { cmd }));
   }
 

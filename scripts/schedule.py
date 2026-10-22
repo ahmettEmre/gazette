@@ -8,7 +8,8 @@ Usage:  ./gazette schedule install [--dry-run]   create or update the job from c
 Windows  Task Scheduler. Runs while you are logged in; a missed run starts as soon as the PC is on again.
 macOS    launchd agent in ~/Library/LaunchAgents. A run missed during sleep starts on wake.
 Linux    your crontab. A run missed while the machine was off is skipped.
-The job starts scripts/scheduled.py, which runs Claude Code headless with narrow permissions.
+The job starts scripts/scheduled.py, which runs your AI agent headless with narrow permissions (scripts/agents.py).
+With Antigravity, install also adds Gazette's command rules to its settings, and remove takes them out again.
 """
 import hashlib
 import json
@@ -21,6 +22,7 @@ from pathlib import Path
 from xml.sax.saxutils import escape
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import agents  # noqa: E402
 from common import LOGS, ROOT, STATE, iso, load_json, load_settings, now_utc, save_json, utf8_stdout  # noqa: E402
 
 DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
@@ -28,18 +30,6 @@ WIN_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", 
 JOB = "gazette-" + hashlib.sha1(str(ROOT).lower().encode()).hexdigest()[:6]  # one job per clone
 RUNNER = ROOT / "scripts" / "scheduled.py"
 RECORD = STATE / "schedule.json"
-
-
-def find_claude():
-    found = shutil.which("claude")
-    if found:
-        return found
-    home = Path.home()
-    for c in (home / ".local/bin/claude.exe", home / ".local/bin/claude", home / ".claude/local/claude",
-              Path("/opt/homebrew/bin/claude"), Path("/usr/local/bin/claude")):
-        if c.exists():
-            return str(c)
-    return None
 
 
 def job_python():
@@ -245,26 +235,32 @@ def main():
             print("Schedule is off in settings" + (" — the existing job was removed." if removed else "; nothing to install."))
             return
         days, hh, mm = parse_schedule(cfg)
-        claude = find_claude()
-        if not claude:
-            sys.exit("Claude Code (claude) was not found on PATH. Install it first: https://code.claude.com/docs")
+        eid, agent = agents.engine_id(cfg), agents.info(cfg)
+        exe = agents.find(eid)
+        if not exe:
+            sys.exit(f"{agent['name']} ({agent['exe']}) was not found on PATH. Install it first: {agent['install']}")
         python = job_python()
         install(days, hh, mm, python, "--dry-run" in sys.argv)
         if "--dry-run" in sys.argv:
             return
-        save_json(RECORD, {"job": JOB, "python": python, "claude": claude, "path": os.environ.get("PATH", ""),
+        save_json(RECORD, {"job": JOB, "python": python, "engine": eid, "agent": exe, "path": os.environ.get("PATH", ""),
                            "days": days, "time": f"{hh:02d}:{mm:02d}", "installed": iso(now_utc())})
         print(f"Scheduled: {', '.join(days)} at {hh:02d}:{mm:02d} (local time) · job {JOB}")
-        print(f"Claude Code: {claude}")
+        print(f"{agent['name']}: {exe}")
+        if eid == "antigravity":
+            print(agents.agy_permissions(add=True))
         print(status() or "")
     elif cmd == "remove":
         print("Removed the scheduled job." if remove() else "No scheduled job was registered.")
+        if (load_json(RECORD, {}) or {}).get("engine") == "antigravity":
+            print(agents.agy_permissions(add=False))
         RECORD.unlink(missing_ok=True)
     elif cmd == "status":
         print(status() or "No scheduled job is registered for this folder.")
         rec = load_json(RECORD, None)
         if rec:
-            print(f"Settings at install: {', '.join(rec['days'])} at {rec['time']} · claude {rec['claude']}")
+            print(f"Settings at install: {', '.join(rec['days'])} at {rec['time']} · "
+                  f"{rec.get('engine', 'claude')} {rec.get('agent') or rec.get('claude')}")
         log = LOGS / "scheduled.log"
         if log.exists():
             tail = [ln for ln in log.read_text(encoding="utf-8", errors="replace").splitlines() if " ===== " in ln][-2:]

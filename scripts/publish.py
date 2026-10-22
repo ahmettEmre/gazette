@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import agents  # noqa: E402
 import learn  # noqa: E402
 from common import (DATA, EDITIONS, RAW, ROOT, STATE, TIERS, TOP, brand, iso, labels, load_json,  # noqa: E402
                     load_settings, now_utc, parse_date, save_json, sections, utf8_stdout)
@@ -88,7 +89,7 @@ def write_js(path, fn, obj):
 def write_site(cfg):
     """Reader settings: brand, language, labels and the current sections (old editions carry their own)."""
     lang = cfg.get("language", "en")
-    site = {"brand": brand(cfg), "lang": lang, "locale": cfg.get("locale") or lang,
+    site = {"brand": brand(cfg), "lang": lang, "locale": cfg.get("locale") or lang, "cmd": agents.info(cfg)["cmd"],
             "labels": labels(cfg), "sections": sections(cfg), "generated": iso(now_utc())}
     write_js(DATA / "site.js", "__gazetteSite", site)
 

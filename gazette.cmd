@@ -1,5 +1,5 @@
 @echo off
-rem Gazette launcher for Windows terminals (cmd, PowerShell). Inside Claude Code use ./gazette instead.
+rem Gazette launcher for Windows terminals (cmd, PowerShell). In Git Bash (Claude Code uses it) run ./gazette instead.
 setlocal
 set "PY=python"
 where py >nul 2>nul && set "PY=py -3"

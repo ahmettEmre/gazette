@@ -181,7 +181,8 @@ def save_json(path, obj, pretty=True):
 def load_settings(required=True):
     cfg = load_json(SETTINGS, None)
     if cfg is None and required:
-        sys.exit("config/settings.json not found. Open Claude Code in this folder and run /gazette-setup first.")
+        sys.exit("config/settings.json not found. Open your AI agent (Claude Code, Codex or Antigravity) in this "
+                 "folder and run /gazette-setup first ($gazette-setup in Codex).")
     return cfg or {}
 
 
@@ -200,7 +201,10 @@ def labels(cfg=None):
     if lang != "en":
         out.update(load_json(I18N / f"{lang}.json", {}))
     out.update(load_json(CONFIG / "ui.json", {}))
-    return out
+    from agents import info
+    agent = info(cfg)
+    return {k: v.replace("{agent}", agent["name"]).replace("{gazette}", agent["cmd"]) if isinstance(v, str) else v
+            for k, v in out.items()}
 
 
 def brand(cfg):

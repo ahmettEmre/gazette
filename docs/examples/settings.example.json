@@ -30,5 +30,5 @@
     "kindle": { "enabled": false, "to": "ada_123@kindle.com" },
     "smtp": { "host": "smtp.gmail.com", "port": 465, "user": "ada.sender@gmail.com", "from": "" }
   },
-  "run": { "model": null }
+  "run": { "engine": "claude", "model": null }
 }

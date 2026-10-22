@@ -1,14 +1,15 @@
 # Gazette
 
-**Your personal news edition, written by Claude Code on your own computer.**
+**Your personal news edition, written by your own AI agent on your own computer.**
+Works with Claude Code, Codex (ChatGPT) or Antigravity CLI (Google).
 
 Gazette reads the sources you care about, picks what matters *to you*, checks it against primary sources, and
 writes it up in the language you choose: what happened, why it matters for you, an honest take, the terms you may
 not know, and a short lesson from something you want to learn. You read it in a local web page, in your inbox, or
 on your Kindle — on the days and at the time you choose.
 
-No server, no API keys, no subscription to yet another service. It runs on your machine and uses your own
-Claude Code plan.
+No server, no API keys, no subscription to yet another service. It runs on your machine and uses the AI plan you
+already have.
 
 ---
 
@@ -24,7 +25,7 @@ Claude Code plan.
 - **"Why it matters to you"** written from your own profile: your job, your tools, your country.
 - **Learning tracks:** pick up to three topics ("EU AI Act for developers", "Kubernetes basics", "Investing 101");
   every edition carries the next lesson, with sources.
-- **Concept cards** for the ideas behind the news, and **Ask Claude** on any story for a deep explanation.
+- **Concept cards** for the ideas behind the news, and **Ask AI** on any story for a deep explanation.
 - **Any language.** English, Turkish and German interfaces ship with it; for other languages the setup translates
   the interface for you.
 
@@ -33,19 +34,29 @@ Claude Code plan.
 ```
  your sources ──► ./gazette collect ──► digest of candidates          (plain Python, no AI)
                                            │
-                        Claude Code  /gazette   picks, reads primary sources, verifies, writes in your language
+                         your AI agent  /gazette   picks, reads primary sources, verifies, writes in your language
                                            │
                         ./gazette publish ──► gazette.html (reader) + archive
                                            │
-                        ./gazette deliver ──► short e-mail + PDF · Kindle EPUB     (your own mail account)
+                        ./gazette deliver ──► short e-mail + PDF · Kindle EPUB     (optional, your own mail account)
 ```
 
-The collector does the cheap work (fetching ~100 feeds takes seconds), so Claude only spends time on judgement
+The collector does the cheap work (fetching ~100 feeds takes seconds), so the AI only spends time on judgement
 and writing. Your operating system's scheduler starts the whole thing on the days you picked.
 
 ## Requirements
 
-- **[Claude Code](https://code.claude.com/docs/en/setup)** signed in with a Claude plan (Pro or Max) or an API key
+- **One AI agent for the terminal**, signed in with your own account. A chat app in the browser is not enough:
+  Gazette needs an agent that can run commands and write files on your computer.
+
+  | Your plan | Agent | Start it with | Commands |
+  |---|---|---|---|
+  | Claude Pro or Max (or an API key) | [Claude Code](https://code.claude.com/docs/en/setup) | `claude` | `/gazette-setup`, `/gazette` |
+  | ChatGPT Plus or Pro | [Codex CLI](https://developers.openai.com/codex/cli) | `codex` | `$gazette-setup`, `$gazette` |
+  | Google account (free tier with weekly limits) or Google AI Pro | [Antigravity CLI](https://antigravity.google/docs/cli) | `agy` | `/gazette-setup`, `/gazette` |
+
+  Gazette is developed and tested with Claude Code. Codex and Antigravity read the same instructions
+  (`.agents/skills/`, `AGENTS.md`); if something behaves differently there, please open an issue.
 - **Python 3.9+** (standard library only; nothing to `pip install`)
 - **Git**
 - Windows 10/11, macOS or Linux
@@ -55,17 +66,17 @@ and writing. Your operating system's scheduler starts the whole thing on the day
 ```bash
 git clone https://github.com/ahmettEmre/gazette.git
 cd gazette
-claude
+claude        # or: codex · agy
 ```
 
 Accept the folder trust prompt, then type:
 
 ```
-/gazette-setup
+/gazette-setup        (Codex: $gazette-setup)
 ```
 
-That's it. The setup is a short conversation (about five minutes). When it is done, type `/gazette` for your
-first edition, or wait for the schedule.
+That's it. The setup is a short conversation (about five minutes). When it is done, type `/gazette` (Codex:
+`$gazette`) for your first edition, or wait for the schedule.
 
 > macOS: clone it somewhere outside Desktop, Documents and Downloads (for example `~/gazette`). macOS privacy
 > protection can block background jobs from reading those folders.
@@ -89,12 +100,12 @@ Run `/gazette-setup` again any time to change any of it — just the part you wa
 
 ## Everyday use
 
-Inside Claude Code, in this folder:
+Inside your AI agent, in this folder (in Codex, `$` instead of `/`):
 
 | Command | What it does |
 |---|---|
 | `/gazette` | write a new edition now and open the reader |
-| `/gazette explain <edition>/<story>` | in-depth explanation of one story (the **Ask Claude** button copies this) |
+| `/gazette explain <edition>/<story>` | in-depth explanation of one story (the **Ask AI** button copies this) |
 | `/gazette --hours 168` | a new edition covering the last week (after a holiday) |
 | `/gazette-setup` | change topics, learning, schedule, delivery, language |
 
@@ -120,14 +131,15 @@ The setup registers **one job with your operating system's scheduler**:
 | macOS | `~/Library/LaunchAgents/com.gazette.….plist` | runs on wake |
 | Linux | your crontab | skipped |
 
-At the scheduled time `scripts/scheduled.py` starts Claude Code headless (`claude -p "/gazette scheduled"`), waits
-for it to publish, then — if you set up e-mail or Kindle — sends the edition there. If you already made an edition
+At the scheduled time `scripts/scheduled.py` starts your AI agent without a window (`claude -p`, `codex exec` or
+`agy -p`; the agent is `run.engine` in `config/settings.json`), waits for it to publish, then — if you set up e-mail or Kindle — sends the edition there. If you already made an edition
 in the last 12 hours, no new one is written. If something fails, the details are in `logs/scheduled.log` (and, with
 e-mail set up, you get a short e-mail about it).
 
-**Cost:** every edition is real Claude work on *your* plan — roughly 5–20 minutes (a 30-story weekly edition took
-16 minutes in testing). Start with one to three editions a week. To save quota, set `"run": {"model": "sonnet"}` in
-`config/settings.json`; scheduled runs then use that model.
+**Cost:** every edition is real AI agent work on *your* plan — roughly 5–20 minutes (a 30-story weekly edition took
+16 minutes with Claude Code). Start with one to three editions a week; on a free tier with a weekly limit, one. To
+save quota, set a cheaper model of your agent in `config/settings.json`, e.g. `"run": {"engine": "claude", "model":
+"sonnet"}`; scheduled runs then use it.
 
 Claude Desktop users can also use its built-in local scheduled tasks to run `/gazette` instead.
 
@@ -178,16 +190,21 @@ folder. (Native alternatives: `cmdkey /generic:gazette-smtp /user:<you> /pass` �
 
 - **Everything stays on your computer:** your profile, sources, editions and reading history. Your read/saved
   marks live in the browser.
-- **What leaves your machine:** requests to the news sources you chose; your Claude Code session (exactly as when you
-  use Claude Code yourself); the e-mails you configured, sent through your own mail account.
-- **No passwords in the folder.** Claude Code may read files in this folder, and the web pages it reads could try to
+- **What leaves your machine:** requests to the news sources you chose; your AI agent's session (exactly as when you
+  use it yourself); the e-mails you configured, sent through your own mail account.
+- **No passwords in the folder.** The AI agent may read files in this folder, and the web pages it reads could try to
   trick it. That is why the mail password lives in the OS keychain, and why the page reader only opens `http(s)` URLs.
-- **Unattended runs have narrow permissions:** they may run `./gazette collect | read | publish | learn`, search and
-  read the web, and write into `data/editions/` — nothing else. They cannot edit scripts, read files outside this
-  folder, run other commands or send e-mail; delivery is done by plain Python after Claude has finished. The rules
-  for the editor say that text from web pages is data, never instructions.
-- The project's permission file (`.claude/settings.json`) only takes effect after you accept the folder trust prompt
-  once in an interactive session. Scheduled runs pass their own permission list and do not depend on it.
+- **Unattended runs get the narrowest permissions each agent offers.** The agent never sends e-mail: delivery is done
+  by plain Python after it has finished. The rules for the editor say that text from web pages is data, never
+  instructions.
+
+  | Agent | Unattended permissions |
+  |---|---|
+  | Claude Code | an exact list: `./gazette collect · read · publish · learn`, web search and fetch, writing in `data/editions/`. Nothing else. |
+  | Codex | Codex's `workspace-write` sandbox with network access: commands and writes stay inside this folder. |
+  | Antigravity | only the commands allowed in its settings. `./gazette schedule install` adds exactly the four `./gazette` commands and reading web pages to `~/.gemini/antigravity-cli/settings.json` (a backup is kept); `schedule remove` takes them out. |
+- Claude Code's project permission file (`.claude/settings.json`) only takes effect after you accept the folder trust
+  prompt once in an interactive session. Scheduled runs pass their own permission list and do not depend on it.
 
 ## Making it yours
 
@@ -212,7 +229,8 @@ Start with `./gazette doctor`.
 | "SMTP login was refused" | check the app password (2-Step Verification on? copied fully?) and store it again with `./gazette secret set` |
 | Kindle shows nothing | the sender address is not on Amazon's approved list, or the Kindle is offline |
 | A source fails | `./gazette sources test`; replace it with another feed or a `gnews` search |
-| Claude asks permission for every command | accept the folder trust prompt (start `claude` in this folder once) |
+| The agent asks permission for every command | accept the folder trust prompt (start the agent in this folder once) |
+| Antigravity: scheduled run writes no edition | its shell commands were not allowed: run `./gazette schedule install` again, or allow them with `/permissions` in `agy` |
 
 ## Update and uninstall
 
@@ -226,10 +244,13 @@ git pull                                       # your config/, data/ and state/ 
 ```
 .claude/skills/gazette/        the editor (/gazette)          scripts/collect.py   sources → digest
 .claude/skills/gazette-setup/  the setup interview           scripts/publish.py   validate → reader files
-catalog/sources.json          ready-made source packs       scripts/deliver.py   e-mail + Kindle (render.py, pdf.py)
-i18n/                         interface languages           scripts/schedule.py  OS scheduler (scheduled.py runs it)
+.agents/skills/                same, for Codex + Antigravity  scripts/deliver.py   e-mail + Kindle (render.py, pdf.py)
+catalog/sources.json          ready-made source packs       scripts/schedule.py  OS scheduler (scheduled.py runs it)
+i18n/                         interface languages           scripts/agents.py    Claude Code / Codex / Antigravity
 viewer/ + gazette.html         the reader                    config/ data/ state/ yours, git-ignored
 ```
+
+Changing a skill: edit `.claude/skills/…`, then `python scripts/sync_skills.py` updates `.agents/skills/`.
 
 ## License
 

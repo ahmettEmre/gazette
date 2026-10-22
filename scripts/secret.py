@@ -6,10 +6,10 @@ Usage:  ./gazette secret set       ask for the password (hidden) and store it
 
 Where it is stored: Windows Credential Manager · macOS Keychain · Linux Secret Service (secret-tool).
 Without a keychain: the GAZETTE_SMTP_PASSWORD environment variable, or ~/.config/gazette/smtp-password
-(readable only by you). Run 'set' in your own terminal window, not inside a Claude Code chat:
+(readable only by you). Run 'set' in your own terminal window, not inside an AI agent's chat:
 a password typed into a chat ends up in the conversation.
 
-Why not a file in this folder? Claude Code may read any file here, and the pages it reads while
+Why not a file in this folder? The AI agent may read any file here, and the pages it reads while
 writing your edition could try to talk it into sending that file somewhere.
 """
 import getpass

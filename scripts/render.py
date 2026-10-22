@@ -282,108 +282,100 @@ def write_epub(path, files):
     tmp.replace(path)
 
 
-# ================================================================ e-mail
+# ================================================================ e-mail and the full edition document
 
-# Layout with tables and short classes. Gmail, Apple Mail and Outlook honour a <style> block in <head>; a client
-# that strips it still shows clean, readable HTML. Repeating inline styles on every element would push a long
-# edition past Gmail's ~102 KB clipping limit. No text-transform: upper-casing is not language-aware everywhere.
 SERIF = "Georgia,'Times New Roman',serif"
 SANS = "-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif"
+
+
+def _first_para(text):
+    return str(text).split("\n\n")[0].strip()
+
+
+def _excerpt(text, limit=260):
+    """Opening sentences of a story, cut at a sentence end. Plain text: a cut could split **bold** or `code`."""
+    first = plain(_first_para(text))
+    if len(first) <= limit:
+        return first
+    cut = first[:limit]
+    end = max(cut.rfind(". "), cut.rfind("! "), cut.rfind("? "))
+    return cut[: end + 1] if end > limit // 3 else cut.rsplit(" ", 1)[0] + "…"
+
+
+def highlights(ed, n=5, at_least=3):
+    """The must-know stories (up to n), topped up with the most important others to at least `at_least`."""
+    top = sorted((it for it in ed["items"] if it["section"] == TOP), key=lambda it: -it["importance"])[:n]
+    rest = sorted((it for it in ed["items"] if it["section"] != TOP), key=lambda it: -it["importance"])
+    return top + rest[: max(0, at_least - len(top))]
+
+
+def upcoming_deadlines(ed, n=3):
+    today = now_utc().date()
+    dated = [(parse_date(it["deadline"]), it) for it in ed["items"] if it.get("deadline")]
+    return sorted(((d, it) for d, it in dated if d and d.date() >= today), key=lambda x: x[0])[:n]
+
+
+def section_counts(ed, cfg):
+    return [(sec["title"], sum(1 for it in ed["items"] if it["section"] == sec["id"]))
+            for sec in edition_sections(ed, cfg) if any(it["section"] == sec["id"] for it in ed["items"])]
+
+
+# Layout with tables and short classes. Gmail, Apple Mail and Outlook honour a <style> block in <head>; a client
+# that strips it still shows clean, readable HTML. No text-transform: upper-casing is not language-aware everywhere.
 MAIL_CSS = f"""body{{margin:0;padding:0;background:#F6F3EC}}
-.wrap{{max-width:640px;background:#FFFDF8;border:1px solid #DFD8CA;border-radius:12px}}
+.wrap{{max-width:600px;background:#FFFDF8;border:1px solid #DFD8CA;border-radius:12px}}
 .pad{{padding:26px 26px 22px}}
 p,li,td,div{{font-family:{SANS}}}
 p{{margin:0 0 10px;font-size:15px;line-height:1.55;color:#1D1B17}}
 a{{color:#2A55A0}}
-code{{font-family:Consolas,Menlo,monospace;font-size:.9em;background:#EFEAE0;padding:0 3px;border-radius:3px}}
 .mast{{padding:0 0 14px;border-bottom:2px solid #1D1B17}}
 .kick{{font-size:11px;font-weight:600;letter-spacing:.15em;color:#7A746A}}
-.brand{{font:700 34px/1.15 {SERIF};color:#1D1B17;margin:6px 0 4px}}
-.small{{font-size:13px;line-height:1.4;color:#7A746A}}
-.head{{font:600 25px/1.25 {SERIF};color:#1D1B17;padding:20px 0 6px}}
-.lab{{font-size:11px;font-weight:700;letter-spacing:.06em;margin:0 0 5px;color:#7A746A}}
-.acc{{color:#C4401C}}
-.sec{{padding:26px 0 2px;border-top:3px solid #C4401C}}
-.sect{{font:600 22px/1.2 {SERIF};color:#C4401C}}
-.item{{padding:18px 0 4px;border-top:1px solid #DFD8CA}}
-.meta{{font-size:12px;line-height:1.4;color:#7A746A;margin:0 0 6px}}
-.t-official{{color:#1E6B47;font-weight:600}} .t-press{{color:#2A55A0;font-weight:600}} .t-community{{color:#94600F;font-weight:600}}
-.unv{{background:#FBEFD8;color:#9A5800;padding:1px 6px;border-radius:9px}}
-.dl{{color:#C4401C;font-weight:700}}
-.title{{font:600 19px/1.3 {SERIF};color:#1D1B17;text-decoration:none;display:block;margin:0 0 8px}}
-.you{{border-left:3px solid #1E6B47;padding:2px 0 2px 12px;margin:0 0 10px}}
-.you .lab{{color:#1E6B47}} .you p{{font-size:14px;color:#4A463F;margin:0}}
-.take{{background:#EEEAF6;border-radius:8px;padding:10px 12px;margin:0 0 10px}}
-.take .lab{{color:#57478A}} .take p{{font-size:14px;margin:0}}
-.src{{font-size:12px;line-height:1.5;color:#7A746A;margin:0 0 6px}}
-.les{{padding:16px 0 6px}}
-.pts{{margin:0 0 10px;padding-left:20px;font-size:14px;line-height:1.5;color:#1D1B17}} .pts li{{margin:0 0 4px}}
-.foot{{padding:22px 0 0;border-top:1px solid #DFD8CA;font-size:12px;line-height:1.5;color:#7A746A}}
+.brand{{font:700 32px/1.15 {SERIF};color:#1D1B17;margin:6px 0 4px}}
+.small{{font-size:13px;line-height:1.45;color:#7A746A}}
+.head{{font:600 23px/1.28 {SERIF};color:#1D1B17;padding:20px 0 10px}}
+.lab{{font-size:11px;font-weight:700;letter-spacing:.06em;margin:0 0 8px;color:#C4401C}}
+.blk{{padding:18px 0 4px;border-top:1px solid #DFD8CA}}
+.hl{{padding:0 0 14px}}
+.hlt{{font:600 17px/1.3 {SERIF};color:#1D1B17;text-decoration:none}}
+.hl p{{font-size:14px;color:#4A463F;margin:5px 0 3px}}
+.src{{font-size:12px;color:#7A746A}}
+.unv{{background:#FBEFD8;color:#9A5800;padding:1px 6px;border-radius:9px;font-size:11px;font-family:{SANS}}}
+.dl{{font-size:14px;line-height:1.5;margin:0 0 6px}} .dl b{{color:#C4401C}}
+.box{{background:#F1EDE4;border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.5;color:#1D1B17}}
+.foot{{padding:18px 0 0;font-size:12px;line-height:1.5;color:#7A746A}}
 """
-GMAIL_CLIP = 95_000  # Gmail cuts messages above ~102 KB; stay below with some margin
 
 
-def _links(sources):
-    return " · ".join(f'<a href="{esc(s["url"])}">{esc(s["name"])}</a>' for s in sources)
-
-
-def _mail_item(it, L, compact):
-    badges = [f'<span class="t-{esc(it["tier"])}">{esc(L.get("tier_" + it["tier"], it["tier"]))}</span>']
-    if not it["verified"]:
-        badges.append(f'<span class="unv">{esc(L["unverified"])}</span>')
-    deadline = parse_date(it.get("deadline"))
-    if deadline:
-        badges.append(f'<span class="dl">{esc(L["deadline"].format(date=fmt_date(deadline, L)))}</span>')
-    badges.append(esc(", ".join(dict.fromkeys(s["name"] for s in it["sources"]))))
-    what = it["what"].split("\n\n")[0] if compact else it["what"]
-    out = [f'<tr><td class="item"><div class="meta">{" · ".join(badges)}</div>',
-           f'<a class="title" href="{esc(it["sources"][0]["url"])}">{inline(it["title"])}</a>', paras(what),
-           f'<div class="you"><div class="lab">{esc(L["for_you"])}</div>{paras(it["why_you"])}</div>']
-    if not compact:
-        out.append(f'<div class="take"><div class="lab">{esc(L["take"])}</div>{paras(it["take"])}</div>')
-    out.append(f'<div class="src">{esc(L["source"])}: {_links(it["sources"])}</div></td></tr>')
-    return "".join(out)
-
-
-def _section_head(title, desc=""):
-    d = f'<div class="small">{esc(desc)}</div>' if desc else ""
-    return f'<tr><td class="sec"><div class="sect">{esc(title)}</div>{d}</td></tr>'
-
-
-def email_html(ed, cfg, L, compact=False):
-    """compact: topic sections keep the first paragraph and "why it matters", drop the take; cards stay short."""
+def email_html(ed, cfg, L, attachment=None):
+    """A short e-mail: intro, a few highlights, deadlines and the lesson. The whole edition is the attachment."""
     lang = (ed.get("lang") or cfg.get("language") or "en").split("-")[0]
+    n = len(ed["items"])
     rows = [
         f'<tr><td class="mast"><div class="kick">{esc(L["kicker"])}</div><div class="brand">{esc(brand(cfg))}</div>'
-        f'<div class="small">{esc(dateline(ed, L))} · {esc(" · ".join(facts(ed, L)[:2]))}</div></td></tr>',
+        f'<div class="small">{esc(dateline(ed, L))} · {esc(L["fact_items"].format(n=n))}</div></td></tr>',
         f'<tr><td class="head">{inline(ed["headline"])}</td></tr>',
-        f'<tr><td><div class="lab acc">{esc(L["big_picture"])}</div>{paras(ed["big_picture"])}</td></tr>',
+        f'<tr><td><div class="lab">{esc(L["big_picture"])}</div>{paras(_first_para(ed["big_picture"]))}</td></tr>',
     ]
-    for sec in edition_sections(ed, cfg):
-        items = sorted((it for it in ed["items"] if it["section"] == sec["id"]), key=lambda it: -it["importance"])
-        if items:
-            rows.append(_section_head(sec["title"], sec.get("desc", "")))
-            rows += [_mail_item(it, L, compact and sec["id"] != TOP) for it in items]
-    lessons = ed.get("lessons") or []
-    if lessons:
-        rows.append(_section_head(L["lessons"], L["lessons_desc"]))
-        for les in lessons:
-            pts = "".join(f"<li>{inline(p)}</li>" for p in les.get("key_points") or [])
-            rows.append(
-                f'<tr><td class="les"><div class="meta">{esc(les.get("track_title", les["track"]))} · '
-                f'{esc(L["lesson_of"].format(n=les["n"], total=les.get("total", "?")))}</div>'
-                f'<div class="title">{inline(les["title"])}</div>{paras(les["body"])}'
-                + (f'<div class="lab">{esc(L["key_points"])}</div><ul class="pts">{pts}</ul>' if pts else "")
-                + (f'<div class="lab">{esc(L["example"])}</div>{paras(les["example"])}' if les.get("example") else "")
-                + f'<div class="src">{esc(L["source"])}: {_links(les.get("sources", []))}</div></td></tr>')
-    concepts = ed.get("concepts") or []
-    if concepts:
-        rows.append(_section_head(L["concepts"], L["concepts_desc"]))
-        for c in concepts:
-            rows.append(f'<tr><td class="les"><div class="title">{inline(c["term"])}</div>'
-                        f'<p><b>{inline(c["short"])}</b></p>{"" if compact else paras(c["long"])}</td></tr>')
-    rows.append(f'<tr><td class="foot">{esc(L["email_more"])}<br>'
-                f'{esc(L["trust_note"].format(take=L["take"], unverified=L["unverified"]))}<br>{esc(L["email_footer"])}</td></tr>')
+    hl = []
+    for it in highlights(ed):
+        unv = f' <span class="unv">{esc(L["unverified"])}</span>' if not it["verified"] else ""
+        names = ", ".join(dict.fromkeys(s["name"] for s in it["sources"]))
+        hl.append(f'<div class="hl"><a class="hlt" href="{esc(it["sources"][0]["url"])}">{inline(it["title"])}</a>{unv}'
+                  f'<p>{esc(_excerpt(it["what"]))}</p><div class="src">{esc(names)}</div></div>')
+    rows.append(f'<tr><td class="blk"><div class="lab">{esc(L["highlights"])}</div>{"".join(hl)}</td></tr>')
+    dls = upcoming_deadlines(ed)
+    if dls:
+        rows.append(f'<tr><td class="blk"><div class="lab">{esc(L["email_deadlines"])}</div>' + "".join(
+            f'<p class="dl"><b>{esc(fmt_date(d, L, year=False))}</b> · {inline(it["title"])}</p>' for d, it in dls) + "</td></tr>")
+    for les in ed.get("lessons") or []:
+        rows.append(f'<tr><td class="blk"><div class="lab">{esc(L["email_lesson"])}</div>'
+                    f'<p><b>{inline(les["title"])}</b><br><span class="small">{esc(les.get("track_title", les["track"]))} · '
+                    f'{esc(L["lesson_of"].format(n=les["n"], total=les.get("total", "?")))}</span></p></td></tr>')
+    contents = " · ".join(f"{esc(t)} {c}" for t, c in section_counts(ed, cfg))
+    rows.append(f'<tr><td class="blk"><div class="lab">{esc(L["email_contents"])}</div><p class="small">{contents}</p></td></tr>')
+    note = (L["email_attached"].format(n=n, file=attachment) if attachment else L["email_no_attachment"].format(n=n))
+    rows.append(f'<tr><td><div class="box">{"📎 " if attachment else ""}{esc(note)}</div></td></tr>')
+    rows.append(f'<tr><td class="foot">{esc(L["email_more"])}<br>{esc(L["email_footer"])}</td></tr>')
     return (f'<!doctype html><html lang="{lang}"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light">'
             f'<title>{esc(title_of(ed, cfg, L))}</title><style>{MAIL_CSS}</style></head><body>'
@@ -395,28 +387,140 @@ def email_html(ed, cfg, L, compact=False):
             + "\n".join(rows) + "</table></td></tr></table></td></tr></table></body></html>")
 
 
-def email_html_fitted(ed, cfg, L):
-    """Full newsletter, or the compact one when the full one would be clipped by Gmail."""
-    full = email_html(ed, cfg, L)
-    return full if len(full.encode("utf-8")) <= GMAIL_CLIP else email_html(ed, cfg, L, compact=True)
-
-
-def email_text(ed, cfg, L):
-    out = [title_of(ed, cfg, L), "", plain(ed["headline"]), "", f"{L['big_picture']}:", plain(ed["big_picture"]), ""]
-    for sec in edition_sections(ed, cfg):
-        items = [it for it in ed["items"] if it["section"] == sec["id"]]
-        if not items:
-            continue
-        out += ["=" * 60, sec["title"], ""]
-        for it in sorted(items, key=lambda it: -it["importance"]):
-            flag = "" if it["verified"] else f" [{L['unverified']}]"
-            out += [f"* {plain(it['title'])}{flag}", plain(it["what"]), f"{L['for_you']}: {plain(it['why_you'])}",
-                    f"{L['take']}: {plain(it['take'])}", "  " + " | ".join(s["url"] for s in it["sources"]), ""]
+def email_text(ed, cfg, L, attachment=None):
+    n = len(ed["items"])
+    out = [title_of(ed, cfg, L), "", plain(ed["headline"]), "", plain(_first_para(ed["big_picture"])), "",
+           f"{L['highlights']}:"]
+    for it in highlights(ed):
+        out += [f"* {plain(it['title'])}", f"  {_excerpt(it['what'])}", f"  {it['sources'][0]['url']}"]
+    dls = upcoming_deadlines(ed)
+    if dls:
+        out += ["", f"{L['email_deadlines']}:"] + [f"- {fmt_date(d, L, year=False)} · {plain(it['title'])}" for d, it in dls]
     for les in ed.get("lessons") or []:
-        out += ["=" * 60, f"{L['lessons']}: {les.get('track_title', les['track'])} · "
-                f"{L['lesson_of'].format(n=les['n'], total=les.get('total', '?'))}", plain(les["title"]), "", plain(les["body"]), ""]
-        out += [f"- {plain(p)}" for p in les.get("key_points") or []] + [""]
-    for c in ed.get("concepts") or []:
-        out += [f"{L['concepts']}: {plain(c['term'])} — {plain(c['short'])}", ""]
-    out += ["-" * 60, L["email_more"], L["email_footer"]]
+        out += ["", f"{L['email_lesson']}: {plain(les['title'])}"]
+    out += ["", f"{L['email_contents']}: " + " · ".join(f"{t} {c}" for t, c in section_counts(ed, cfg)), "",
+            L["email_attached"].format(n=n, file=attachment) if attachment else L["email_no_attachment"].format(n=n),
+            "", L["email_footer"]]
     return "\n".join(out)
+
+
+# The full edition as one self-contained page: the e-mail attachment (as HTML or printed to PDF).
+# A5 pages read well on a phone without zooming and still print fine.
+DOC_CSS = f""":root{{color-scheme:light}}
+*{{box-sizing:border-box}}
+body{{margin:0;background:#F6F3EC;color:#1D1B17;font:15px/1.6 {SANS};-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+.page{{max-width:720px;margin:0 auto;padding:28px 22px 40px;background:#FFFDF8}}
+.mast{{text-align:center;border-bottom:2px solid #1D1B17;padding:4px 0 14px;margin-bottom:18px}}
+.kick{{font-size:11px;font-weight:700;letter-spacing:.18em;color:#7A746A}}
+.brand{{font:700 40px/1.1 {SERIF};margin:6px 0}}
+.small{{font-size:13px;color:#7A746A}}
+h1{{font:600 25px/1.25 {SERIF};margin:0 0 14px}}
+.lab{{font-size:11px;font-weight:700;letter-spacing:.06em;color:#C4401C;margin:0 0 6px}}
+p{{margin:0 0 9px}}
+.toc{{background:#F1EDE4;border-radius:10px;padding:14px 16px;margin:18px 0 8px;font-size:14px}}
+.toc ol{{margin:0;padding-left:18px}} .toc li{{margin:5px 0}}
+.toc ul{{margin:3px 0 6px;padding-left:16px;font-size:13px;color:#4A463F}}
+.toc a{{color:inherit;text-decoration:none}}
+.sec{{margin-top:26px}}
+h2{{font:600 21px/1.2 {SERIF};color:#C4401C;border-top:3px solid #C4401C;padding-top:10px;margin:0 0 2px;break-after:avoid}}
+.desc{{font-size:13px;color:#7A746A;margin:0 0 4px}}
+.item{{border-top:1px solid #DFD8CA;padding:14px 0 4px}}
+.meta{{font-size:12px;color:#7A746A;margin:0 0 4px}}
+.t-official{{color:#1E6B47;font-weight:700}} .t-press{{color:#2A55A0;font-weight:700}} .t-community{{color:#94600F;font-weight:700}}
+.unv{{background:#FBEFD8;color:#9A5800;padding:0 6px;border-radius:9px}}
+.dl{{color:#C4401C;font-weight:700}}
+h3{{font:600 18px/1.3 {SERIF};margin:0 0 6px;break-after:avoid}}
+.orig{{font-size:12px;font-style:italic;color:#7A746A;margin:-2px 0 6px}}
+.you{{border-left:3px solid #1E6B47;padding:2px 0 2px 12px;margin:0 0 10px;color:#4A463F;font-size:14px;break-inside:avoid}}
+.take{{background:#EEEAF6;border-radius:8px;padding:10px 12px;margin:0 0 10px;font-size:14px;break-inside:avoid}}
+.you .lab{{color:#1E6B47}} .take .lab{{color:#57478A}} .you p:last-child,.take p:last-child{{margin:0}}
+dl.terms{{font-size:13px;margin:0 0 8px}} dl.terms dt{{font-weight:700}} dl.terms dd{{margin:0 0 4px}}
+.src{{font-size:12px;color:#7A746A;margin:0 0 8px}} .src a{{color:#2A55A0}}
+code{{font-family:Consolas,Menlo,monospace;font-size:.88em;background:#EFEAE0;padding:0 3px;border-radius:3px}}
+.lesson,.concept{{border:1px solid #DFD8CA;border-radius:10px;padding:14px 16px;margin:12px 0}}
+.lesson{{border-left:4px solid #1E6B47}}
+.points{{background:#E2F0E7;border-radius:8px;padding:10px 12px 10px 30px;margin:0 0 10px;font-size:14px}}
+.example{{background:#F1EDE4;border-radius:8px;padding:10px 12px;margin:0 0 10px;font-size:14px}}
+.foot{{margin-top:28px;border-top:1px solid #DFD8CA;padding-top:12px;font-size:12px;color:#7A746A}}
+@page{{size:A5;margin:12mm 10mm 14mm;@bottom-center{{content:counter(page);font:9pt {SANS};color:#7A746A}}}}
+@media print{{body{{background:#fff;font-size:10.5pt}} .page{{max-width:none;padding:0;background:#fff}}
+  h1{{font-size:17pt}} .brand{{font-size:28pt}} h2{{font-size:15pt}} h3{{font-size:12.5pt}} .toc ul li{{break-inside:avoid}} .sec.first{{break-before:page}} .desc{{break-after:avoid}}}}
+"""
+
+
+def _doc_item(it, L):
+    badges = [f'<span class="t-{esc(it["tier"])}">{esc(L.get("tier_" + it["tier"], it["tier"]))}</span>']
+    if not it["verified"]:
+        badges.append(f'<span class="unv">{esc(L["unverified"])}</span>')
+    deadline = parse_date(it.get("deadline"))
+    if deadline:
+        badges.append(f'<span class="dl">{esc(L["deadline"].format(date=fmt_date(deadline, L)))}</span>')
+    pub = parse_date(it.get("published"))
+    if pub:
+        badges.append(esc(fmt_date(pub, L, year=False)))
+    badges.append(esc(L["importance"].format(n=it["importance"])))
+    out = [f'<article class="item" id="m-{esc(it["id"])}"><div class="meta">{" · ".join(badges)}</div>',
+           f"<h3>{inline(it['title'])}</h3>"]
+    orig = (it.get("original_title") or "").strip()
+    if orig and orig != it["title"]:
+        out.append(f'<p class="orig">{esc(orig)}</p>')
+    out += [paras(it["what"]),
+            f'<div class="you"><div class="lab">{esc(L["for_you"])}</div>{paras(it["why_you"])}</div>',
+            f'<div class="take"><div class="lab">{esc(L["take"])}</div>{paras(it["take"])}</div>']
+    terms = it.get("terms") or []
+    if terms:
+        out.append('<dl class="terms">' + "".join(f"<dt>{inline(t['term'])}</dt><dd>{inline(t['explain'])}</dd>"
+                                                 for t in terms) + "</dl>")
+    links = " · ".join(f'<a href="{esc(s["url"])}">{esc(s["name"])}</a>' for s in it["sources"])
+    out.append(f'<div class="src">{esc(L["source"])}: {links}</div></article>')
+    return "".join(out)
+
+
+def document_html(ed, cfg, L):
+    lang = (ed.get("lang") or cfg.get("language") or "en").split("-")[0]
+    secs = [(sec, sorted((it for it in ed["items"] if it["section"] == sec["id"]), key=lambda it: -it["importance"]))
+            for sec in edition_sections(ed, cfg)]
+    secs = [(sec, items) for sec, items in secs if items]
+    lessons, concepts = ed.get("lessons") or [], ed.get("concepts") or []
+    toc = "".join(f'<li><a href="#s-{esc(sec["id"])}">{esc(sec["title"])}</a> ({len(items)})<ul>'
+                  + "".join(f'<li><a href="#m-{esc(it["id"])}">{inline(it["title"])}</a></li>' for it in items) + "</ul></li>"
+                  for sec, items in secs)
+    if lessons:
+        toc += f'<li><a href="#lessons">{esc(L["lessons"])}</a></li>'
+    if concepts:
+        toc += f'<li><a href="#concepts">{esc(L["concepts"])}</a></li>'
+    body = [f'<header class="mast"><div class="kick">{esc(L["kicker"])}</div><div class="brand">{esc(brand(cfg))}</div>'
+            f'<div class="small">{esc(dateline(ed, L))} · {esc(" · ".join(facts(ed, L)))}</div></header>',
+            f"<h1>{inline(ed['headline'])}</h1>",
+            f'<div class="lab">{esc(L["big_picture"])}</div>{paras(ed["big_picture"])}',
+            f'<nav class="toc"><div class="lab">{esc(L["contents"])}</div><ol>{toc}</ol></nav>']
+    for n, (sec, items) in enumerate(secs):
+        desc = f'<p class="desc">{esc(sec.get("desc", ""))}</p>' if sec.get("desc") else ""
+        body.append(f'<section class="sec{" first" if n == 0 else ""}" id="s-{esc(sec["id"])}"><h2>{esc(sec["title"])}</h2>{desc}'
+                    + "".join(_doc_item(it, L) for it in items) + "</section>")
+    if lessons:
+        parts = []
+        for les in lessons:
+            pts = "".join(f"<li>{inline(p)}</li>" for p in les.get("key_points") or [])
+            links = " · ".join(f'<a href="{esc(s["url"])}">{esc(s["name"])}</a>' for s in les.get("sources", []))
+            parts.append(f'<div class="lesson"><div class="meta">{esc(les.get("track_title", les["track"]))} · '
+                         f'{esc(L["lesson_of"].format(n=les["n"], total=les.get("total", "?")))}</div>'
+                         f"<h3>{inline(les['title'])}</h3>{paras(les['body'])}"
+                         + (f'<div class="lab">{esc(L["key_points"])}</div><ul class="points">{pts}</ul>' if pts else "")
+                         + (f'<div class="example"><div class="lab">{esc(L["example"])}</div>{paras(les["example"])}</div>'
+                            if les.get("example") else "")
+                         + f'<div class="src">{esc(L["source"])}: {links}</div></div>')
+        body.append(f'<section class="sec" id="lessons"><h2>{esc(L["lessons"])}</h2>'
+                    f'<p class="desc">{esc(L["lessons_desc"])}</p>{"".join(parts)}</section>')
+    if concepts:
+        body.append(f'<section class="sec" id="concepts"><h2>{esc(L["concepts"])}</h2>'
+                    f'<p class="desc">{esc(L["concepts_desc"])}</p>' + "".join(
+                        f'<div class="concept"><h3>{inline(c["term"])}</h3>{paras(c["short"])}{paras(c["long"])}'
+                        + (f'<div class="example"><div class="lab">{esc(L["example"])}</div>{paras(c["example"])}</div>'
+                           if c.get("example") else "") + "</div>" for c in concepts) + "</section>")
+    body.append(f'<footer class="foot">{esc(L["trust_note"].format(take=L["take"], unverified=L["unverified"]))}<br>'
+                f'{esc(L["email_footer"])}</footer>')
+    return (f'<!doctype html><html lang="{lang}"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width,initial-scale=1">'
+            f'<title>{esc(title_of(ed, cfg, L))}</title><style>{DOC_CSS}</style></head>'
+            f'<body><div class="page">{"".join(body)}</div></body></html>')

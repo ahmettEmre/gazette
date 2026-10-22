@@ -13,7 +13,8 @@ Python scripts (standard library only) collect and publish; Claude Code selects,
 Claude (/gazette)  → data/editions/<id>.json                    (selects, reads, verifies, writes)
 ./gazette publish  → data/editions/<id>.js, data/index.js, data/site.js, state/ (seen items, lesson progress)
 gazette.html       → viewer/app.js loads data/*.js via <script> (works from file://, no server)
-./gazette deliver  → e-mail newsletter (render.py) and/or EPUB to Kindle, over the user's SMTP account
+./gazette deliver  → short e-mail + full edition attached (render.py; PDF via a local Chromium in pdf.py, else HTML)
+                     and/or EPUB to Kindle, over the user's own SMTP account
 ```
 
 ## Files

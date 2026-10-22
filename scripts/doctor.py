@@ -55,6 +55,17 @@ def main():
         _, where = get_password(user) if user else (None, None)
         line(bool(where), f"delivery: {', '.join(channels)} via {user or '?'}" + (f" · password in {where}" if where else ""),
              "" if where else "store the app password: ./gazette secret set (in your own terminal)")
+        if "email" in channels:
+            from deliver import attachment_kind
+            from pdf import find_browser
+            kind = attachment_kind(cfg)
+            if kind == "pdf":
+                browser = find_browser(cfg)
+                line(bool(browser), f"e-mail attachment: PDF printed by {browser}" if browser else
+                     "e-mail attachment: PDF wanted, but no Chrome/Edge/Chromium/Brave found (HTML is attached instead)",
+                     "" if browser else "install one, set delivery.email.browser, or use \"attachment\": \"html\"")
+            else:
+                line(None, f"e-mail attachment: {kind}")
         if "--smtp" in sys.argv and where:
             r = subprocess.run([sys.executable, "-I", str(Path(__file__).with_name("deliver.py")), "--check"],
                                capture_output=True, text=True)

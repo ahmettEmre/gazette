@@ -16,7 +16,8 @@ Claude Code plan.
 
 - **A reader** (`gazette.html`): sections, archive, search, read/saved marks, dark mode, keyboard shortcuts. Opens from
   disk, no server.
-- **An e-mail newsletter** and/or an **EPUB for your Kindle**, sent automatically after each scheduled edition.
+- **A short e-mail** with the big picture and a few highlights, the **full edition attached as a PDF** (or HTML/EPUB),
+  and/or an **EPUB for your Kindle** — sent automatically after each scheduled edition, from your own mail account.
 - **Trust signals on every story:** official / press / community source, "Unverified" when only one non-official
   source exists, an importance score and a hype meter. Facts and opinion are kept apart.
 - **"Why it matters to you"** written from your own profile: your job, your tools, your country.
@@ -35,7 +36,7 @@ Claude Code plan.
                                            │
                         ./gazette publish ──► gazette.html (reader) + archive
                                            │
-                        ./gazette deliver ──► e-mail newsletter · Kindle EPUB      (your own mail account)
+                        ./gazette deliver ──► short e-mail + PDF · Kindle EPUB     (your own mail account)
 ```
 
 The collector does the cheap work (fetching ~100 feeds takes seconds), so Claude only spends time on judgement
@@ -131,7 +132,24 @@ Claude Desktop users can also use its built-in local scheduled tasks to run `/ga
 
 ## E-mail and Kindle
 
-Sending uses an e-mail account you own (the sender); editions can go to any address.
+Sending uses an e-mail account **you** own (the sender) and goes to any addresses you choose — yours, a colleague's,
+a team list. Gazette has no mail server and no default sender; it only logs in to your account with your password.
+Both live on your computer: the addresses in `config/settings.json`, the password in your OS keychain.
+
+**What the e-mail looks like:** a short message — the edition's headline and big picture, 3–5 highlights with a
+two-sentence excerpt and a link to the source, upcoming deadlines and the lesson title — so it stays readable on a
+phone. The **whole edition is attached**: every story with context, the "why it matters to you" note and sources,
+plus a clickable table of contents. Choose the attachment with `delivery.email.attachment`:
+
+| `attachment` | What you get |
+|---|---|
+| `pdf` (default) | A5 PDF, opens inline in Gmail and most mail apps. Printed by a Chrome, Edge, Chromium or Brave already on your computer (`./gazette doctor` shows which one). Without one, the HTML file is attached instead. |
+| `html` | One self-contained page that opens in any browser. |
+| `epub` | For e-readers and book apps. |
+| `none` | Just the short e-mail; read the rest in `gazette.html`. |
+
+If your browser lives somewhere unusual, set `delivery.email.browser` to its path. `./gazette deliver <edition> --preview`
+writes the e-mail and the attachment into `out/` without sending anything.
 
 | Provider | Server | Port | Password |
 |---|---|---|---|
@@ -205,7 +223,7 @@ git pull                                       # your config/, data/ and state/ 
 ```
 .claude/skills/gazette/        the editor (/gazette)          scripts/collect.py   sources → digest
 .claude/skills/gazette-setup/  the setup interview           scripts/publish.py   validate → reader files
-catalog/sources.json          ready-made source packs       scripts/deliver.py   e-mail + Kindle (render.py)
+catalog/sources.json          ready-made source packs       scripts/deliver.py   e-mail + Kindle (render.py, pdf.py)
 i18n/                         interface languages           scripts/schedule.py  OS scheduler (scheduled.py runs it)
 viewer/ + gazette.html         the reader                    config/ data/ state/ yours, git-ignored
 ```

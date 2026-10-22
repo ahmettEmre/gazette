@@ -81,7 +81,11 @@
   "fact_read": "{n} Primärquellen gelesen",
   "trust_note": "Fakten stützen sich auf die verlinkten Quellen; „{take}“ ist die Meinung der Redaktion. Meldungen mit nur einer nicht offiziellen Quelle sind als „{unverified}“ markiert.",
 
-  "email_intro": "Deine Ausgabe ist fertig.",
+  "email_deadlines": "Anstehende Fristen",
+  "email_lesson": "Heutige Lektion",
+  "email_contents": "In dieser Ausgabe",
+  "email_attached": "Die vollständige Ausgabe hängt an: {n} Meldungen mit Kontext, Einschätzung und Quellen ({file}).",
+  "email_no_attachment": "Die vollständige Ausgabe mit allen {n} Meldungen liegt in deinem Reader: gazette.html (./gazette open).",
   "email_more": "Volltext, Suche und Archiv: Öffne gazette.html in deinem Gazette-Ordner (oder ./gazette open).",
   "email_footer": "Erstellt auf deinem eigenen Rechner von Gazette mit Claude Code.",
   "email_test_subject": "{brand}: Test-E-Mail",

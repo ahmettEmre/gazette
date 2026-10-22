@@ -26,7 +26,7 @@
   },
   "delivery": {
     "send_manual_runs": false,
-    "email": { "enabled": true, "to": ["ada@example.com"], "attach_epub": false },
+    "email": { "enabled": true, "to": ["ada@example.com"], "attachment": "pdf" },
     "kindle": { "enabled": false, "to": "ada_123@kindle.com" },
     "smtp": { "host": "smtp.gmail.com", "port": 465, "user": "ada.sender@gmail.com", "from": "" }
   },

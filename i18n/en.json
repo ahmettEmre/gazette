@@ -81,7 +81,11 @@
   "fact_read": "{n} primary sources read",
   "trust_note": "Facts rest on the linked sources; “{take}” is the editor's opinion. Items backed by a single non-official source are marked “{unverified}”.",
 
-  "email_intro": "Your edition is ready.",
+  "email_deadlines": "Upcoming deadlines",
+  "email_lesson": "Today's lesson",
+  "email_contents": "In this edition",
+  "email_attached": "The full edition is attached: {n} stories with context, my take and sources ({file}).",
+  "email_no_attachment": "The full edition with all {n} stories is in your reader: gazette.html (./gazette open).",
   "email_more": "Full text, search and archive: open gazette.html in your Gazette folder (or run ./gazette open).",
   "email_footer": "Made on your own computer by Gazette with Claude Code.",
   "email_test_subject": "{brand}: test e-mail",

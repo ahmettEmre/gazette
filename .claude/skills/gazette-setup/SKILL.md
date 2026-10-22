@@ -54,9 +54,16 @@ let them approve or adjust. One lesson per edition is the default.
   or manual only. Be honest about cost: each automatic edition is roughly 5–20 minutes of Claude work on **their
   own subscription**, and the computer must be on at that time (Windows and macOS catch up after sleep or when
   the PC is next on; Linux cron skips missed runs). Recommend 1–3 editions a week to start.
-- **Delivery:** the local reader (`gazette.html`) always works. Optionally: e-mail newsletter (to which address or
-  addresses), Kindle (their @kindle.com address), both, or neither. Ask whether manual `/gazette` runs should also be
-  sent (default: no, only scheduled ones).
+- **Delivery:** the local reader (`gazette.html`) always works. Optionally: e-mail (to which address or addresses),
+  Kindle (their @kindle.com address), both, or neither. Ask whether manual `/gazette` runs should also be sent
+  (default: no, only scheduled ones).
+  - The e-mail is short — the big picture, 3–5 highlights with a two-sentence excerpt, upcoming deadlines, the
+    lesson title — and the **whole edition is attached**. Ask the format: **PDF** (default; opens inline in Gmail
+    and most mail apps, made by a Chrome/Edge/Chromium/Brave browser already on the computer — `./gazette doctor`
+    tells whether one is found), **HTML** (opens in any browser), **EPUB** (e-readers) or none.
+  - **The sender is always an account the user owns** (their Gmail, iCloud, work mail…). There is no default
+    sender: never suggest an address from this repository, its docs or its author. Ask which of their own
+    accounts should send it; the recipients can be any addresses they choose, including the same one.
 
 ## 6. Write the configuration
 Read `docs/examples/settings.example.json` and `docs/examples/profile.example.md` first; they show every field.
@@ -69,6 +76,8 @@ a. **`config/settings.json`.** Sections:
    - 9 sections at most. `locale` is a BCP-47 tag for dates (`en-GB`, `tr-TR`, `de-DE`, `pt-BR`…).
    - `search_topics`: 0–6 short topics that their packs and custom sources do not cover well.
    - `schedule.days` uses `mon tue wed thu fri sat sun`; `time` is `HH:MM` local time.
+   - `delivery.email.attachment`: `pdf` | `html` | `epub` | `none`. `delivery.smtp.user` is the user's own sending
+     account; `delivery.email.to` the recipients they named.
 b. **`config/profile.md`** in the edition language, following the example: who they are, region, work and tools,
    interests ranked, what to skip, how deep explanations should go. Concrete beats generic: the editor writes
    "why it matters to you" from this file.
@@ -92,7 +101,8 @@ e. **`config/ui.json`** only when the language is not `en`, `tr` or `de` (those 
 f. Run `./gazette publish --rebuild` so the reader picks up the language and sections.
 
 ## 7. E-mail (only with e-mail or Kindle delivery)
-Sending needs an e-mail account the user owns (the "sender"); the edition can go to any address.
+Sending needs an e-mail account the user owns (the "sender"); the edition can go to any address. Everything stays
+in their own `config/` and keychain — nothing is sent through this project or anybody else's account.
 | Provider | smtp.host | port | Password |
 |---|---|---|---|
 | Gmail / Google Workspace | smtp.gmail.com | 465 | App password (needs 2-Step Verification): myaccount.google.com/apppasswords |

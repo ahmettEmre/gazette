@@ -81,7 +81,11 @@
   "fact_read": "{n} birincil kaynak okundu",
   "trust_note": "Olgular bağlantılı kaynaklara dayanır; “{take}” bölümleri editörün görüşüdür. Tek ve resmî olmayan kaynağa dayanan maddeler “{unverified}” diye işaretlidir.",
 
-  "email_intro": "Baskın hazır.",
+  "email_deadlines": "Yaklaşan son tarihler",
+  "email_lesson": "Bugünün dersi",
+  "email_contents": "Bu baskıda",
+  "email_attached": "Baskının tamamı ekte: bağlamı, yorumum ve kaynaklarıyla {n} haber ({file}).",
+  "email_no_attachment": "Baskının tamamı, {n} haberin hepsiyle okuma sayfanda: gazette.html (./gazette open).",
   "email_more": "Tam metin, arama ve arşiv: Gazette klasöründeki gazette.html dosyasını aç (ya da ./gazette open).",
   "email_footer": "Gazette tarafından, kendi bilgisayarında Claude Code ile hazırlandı.",
   "email_test_subject": "{brand}: deneme e-postası",

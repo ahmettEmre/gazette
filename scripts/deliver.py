@@ -1,10 +1,13 @@
-"""Delivery: sends a published edition as an e-mail newsletter and/or as an EPUB to a Kindle.
+"""Delivery: sends a published edition by e-mail and/or as an EPUB to a Kindle.
+
+The e-mail itself is short (intro, highlights, deadlines, the lesson); the whole edition is attached as a PDF
+(printed by a Chromium browser you already have), an HTML file or an EPUB — delivery.email.attachment.
 
 Usage:  ./gazette deliver <edition-id>             every channel enabled in settings (skips ones already sent)
         ./gazette deliver --latest                 the newest published edition
         ./gazette deliver <id> --email | --kindle  only that channel
         ./gazette deliver <id> --force             send again even if it was sent before
-        ./gazette deliver <id> --preview           only write out/<id>.html and out/<id>.epub, send nothing
+        ./gazette deliver <id> --preview           only write the e-mail and its attachment to out/, send nothing
         ./gazette deliver --check                  test the SMTP login without sending anything
         ./gazette deliver --test                   send a short test e-mail to the e-mail recipients
 
@@ -19,6 +22,7 @@ from email.utils import formataddr, make_msgid
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import pdf  # noqa: E402
 import render  # noqa: E402
 from common import (EDITIONS, OUT, STATE, brand, iso, labels, load_json, load_settings, now_utc,  # noqa: E402
                     save_json, utf8_stdout)
@@ -99,15 +103,48 @@ def build_epub(ed, cfg, L):
     return title, path
 
 
-def mail_edition(ed, cfg, L, s, to, attach_epub=None):
+ATTACHMENTS = ("pdf", "html", "epub", "none")
+MIME = {".pdf": ("application", "pdf"), ".html": ("text", "html"), ".epub": ("application", "epub+zip")}
+
+
+def attachment_kind(cfg):
+    email = cfg.get("delivery", {}).get("email") or {}
+    kind = email.get("attachment") or ("epub" if email.get("attach_epub") else "pdf")
+    return kind if kind in ATTACHMENTS else "pdf"
+
+
+def build_attachment(ed, cfg, L):
+    """The full edition as a file for the e-mail. A PDF falls back to HTML when no browser can print it."""
+    kind = attachment_kind(cfg)
+    if kind == "none":
+        return None
+    if kind == "epub":
+        return build_epub(ed, cfg, L)[1]
+    OUT.mkdir(exist_ok=True)
+    html_path = OUT / f"{render.file_stem(cfg)}_{ed['id']}.html"
+    html_path.write_bytes(render.document_html(ed, cfg, L).encode("utf-8"))
+    if kind == "html":
+        return html_path
+    browser = pdf.find_browser(cfg)
+    problem = pdf.html_to_pdf(html_path, html_path.with_suffix(".pdf"), browser) if browser else "no Chrome/Edge/Chromium found"
+    if problem:
+        print(f"PDF not possible ({problem}); attaching HTML instead. Set delivery.email.attachment to \"html\" "
+              "to silence this, or delivery.email.browser to a Chromium-based browser.")
+        return html_path
+    return html_path.with_suffix(".pdf")
+
+
+def mail_edition(ed, cfg, L, s, to, attachment=None):
     msg = EmailMessage()
     msg["From"], msg["To"] = s["from"], ", ".join(to)
     msg["Subject"] = f"{render.title_of(ed, cfg, L)} — {render.plain(ed['headline'])}"[:180]
     msg["Message-ID"] = make_msgid(domain=s["user"].split("@")[-1])
-    msg.set_content(render.email_text(ed, cfg, L))
-    msg.add_alternative(render.email_html_fitted(ed, cfg, L), subtype="html")
-    if attach_epub:
-        msg.add_attachment(attach_epub.read_bytes(), maintype="application", subtype="epub+zip", filename=attach_epub.name)
+    name = attachment.name if attachment else None
+    msg.set_content(render.email_text(ed, cfg, L, name))
+    msg.add_alternative(render.email_html(ed, cfg, L, name), subtype="html")
+    if attachment:
+        maintype, subtype = MIME[attachment.suffix]
+        msg.add_attachment(attachment.read_bytes(), maintype=maintype, subtype=subtype, filename=attachment.name)
     send(s, msg)
 
 
@@ -135,7 +172,7 @@ def main():
     ap.add_argument("--email", action="store_true", help="only the e-mail channel")
     ap.add_argument("--kindle", action="store_true", help="only the Kindle channel")
     ap.add_argument("--force", action="store_true", help="send even if it was sent before")
-    ap.add_argument("--preview", action="store_true", help="write out/<id>.html and .epub, send nothing")
+    ap.add_argument("--preview", action="store_true", help="write the e-mail, its attachment and the EPUB to out/, send nothing")
     ap.add_argument("--check", action="store_true", help="test the SMTP login")
     ap.add_argument("--test", action="store_true", help="send a short test e-mail")
     ap.add_argument("--notify-failure", action="store_true", help=argparse.SUPPRESS)
@@ -164,12 +201,12 @@ def main():
     ed = load_edition("--latest" if args.latest else args.edition)
     channels = [c for c in ("email", "kindle") if (not (args.email or args.kindle)) or getattr(args, c)]
     if args.preview:
-        OUT.mkdir(exist_ok=True)
-        html_path = OUT / f"{ed['id']}.email.html"
-        html_path.write_text(render.email_html_fitted(ed, cfg, L), encoding="utf-8")
+        attachment = build_attachment(ed, cfg, L)
+        mail = OUT / f"{ed['id']}.email.html"
+        mail.write_bytes(render.email_html(ed, cfg, L, attachment.name if attachment else None).encode("utf-8"))
         _, epub = build_epub(ed, cfg, L)
-        print(f"Preview: {html_path.relative_to(OUT.parent)} ({html_path.stat().st_size // 1024} KB) · "
-              f"{epub.relative_to(OUT.parent)} ({epub.stat().st_size // 1024} KB)")
+        files = [mail, epub] + ([attachment] if attachment and attachment != epub else [])
+        print("Preview: " + " · ".join(f"{p.relative_to(OUT.parent)} ({p.stat().st_size // 1024} KB)" for p in files))
         return
 
     sent = load_json(SENT, {})
@@ -191,8 +228,7 @@ def main():
                 _, epub = build_epub(ed, cfg, L)
                 mail_kindle(ed, cfg, L, s, to, epub)
             else:
-                attach = build_epub(ed, cfg, L)[1] if cfg["delivery"]["email"].get("attach_epub") else None
-                mail_edition(ed, cfg, L, s, to, attach)
+                mail_edition(ed, cfg, L, s, to, build_attachment(ed, cfg, L))
         except (smtplib.SMTPException, OSError, ValueError) as e:
             failures += 1
             print(f"FAILED {c} → {', '.join(to)}: {type(e).__name__}: {e}")

@@ -1,0 +1,12 @@
+# Your own configuration, editions and state stay on your computer.
+config/
+data/
+state/
+raw/
+out/
+logs/
+
+__pycache__/
+*.pyc
+.claude/settings.local.json
+.DS_Store

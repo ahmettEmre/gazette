@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "name": "Ada",
+  "language": "en",
+  "locale": "en-GB",
+  "region": "Germany (EU)",
+  "edition": {
+    "title": "Gazette",
+    "length": "standard",
+    "sections": [
+      { "id": "top", "title": "Must-know", "nav": "Must-know", "desc": "Verified developments you should not miss." },
+      { "id": "ai", "title": "AI models and tools", "nav": "AI", "desc": "New models, prices and limits, developer tools." },
+      { "id": "stack", "title": "Your stack", "nav": "Stack", "desc": "Important releases and security fixes in the tools you use." },
+      { "id": "security", "title": "Security", "nav": "Security", "desc": "Vulnerabilities and breaches worth knowing about." },
+      { "id": "markets", "title": "Markets and companies", "nav": "Markets", "desc": "Funding, acquisitions, pricing moves." },
+      { "id": "law", "title": "Law and policy", "nav": "Law", "desc": "GDPR, the EU AI Act, copyright and licences." },
+      { "id": "opportunities", "title": "Opportunities", "nav": "Opportunities", "desc": "Credits, programs, hackathons and grants you can apply for." }
+    ],
+    "search_topics": ["EU AI Act enforcement", "open-source licence changes"]
+  },
+  "schedule": {
+    "enabled": true,
+    "days": ["mon", "thu"],
+    "time": "07:00",
+    "skip_if_recent_hours": 12
+  },
+  "delivery": {
+    "send_manual_runs": false,
+    "email": { "enabled": true, "to": ["ada@example.com"], "attach_epub": false },
+    "kindle": { "enabled": false, "to": "ada_123@kindle.com" },
+    "smtp": { "host": "smtp.gmail.com", "port": 465, "user": "ada.sender@gmail.com", "from": "" }
+  },
+  "run": { "model": null }
+}

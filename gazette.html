@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gazette</title>
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23C4401C'/%3E%3Cpath d='M9 10h14M9 15h14M9 20h9' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&display=swap">
+<link rel="stylesheet" href="viewer/app.css">
+<script>
+  try { const t = localStorage.getItem('gazette.theme'); if (t) document.documentElement.dataset.theme = JSON.parse(t); } catch (e) {}
+</script>
+</head>
+<body>
+<header class="topbar">
+  <button class="icon-btn menu-btn" data-action="menu" data-i18n-label="menu" aria-label="Sections and filters">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <a class="brand" href="#" data-action="latest">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span class="brand-name" id="brandName">Gazette</span>
+  </a>
+  <nav class="edition-nav">
+    <button class="icon-btn" data-action="prev" data-i18n-label="prev" aria-label="Previous edition">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <span class="edition-label" id="editionLabel">—</span>
+    <button class="icon-btn" data-action="next" data-i18n-label="next" aria-label="Next edition">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </nav>
+  <label class="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
+    <input id="search" type="search" data-i18n-placeholder="search" placeholder="Search this edition" autocomplete="off" aria-label="Search this edition">
+    <kbd>/</kbd>
+  </label>
+  <button class="icon-btn" data-action="theme" data-i18n-label="theme" aria-label="Light/dark theme">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" class="fill"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <section class="side-block">
+      <h2 class="side-title" data-i18n="nav_sections">Sections</h2>
+      <ul class="section-nav" id="sectionNav"></ul>
+    </section>
+    <section class="side-block">
+      <h2 class="side-title" data-i18n="nav_filter">Filter</h2>
+      <div class="filters" id="filters">
+        <label class="check"><input type="checkbox" data-tier="official" checked><span class="dot tier-official"></span><span data-i18n="tier_official">Official source</span></label>
+        <label class="check"><input type="checkbox" data-tier="press" checked><span class="dot tier-press"></span><span data-i18n="tier_press">Press</span></label>
+        <label class="check"><input type="checkbox" data-tier="community" checked><span class="dot tier-community"></span><span data-i18n="tier_community">Community</span></label>
+        <label class="check"><input type="checkbox" id="unreadOnly"><span data-i18n="unread_only">Unread only</span></label>
+      </div>
+      <button class="side-link" data-action="saved" id="savedLink"><span>☆ <span data-i18n="nav_saved">Saved</span></span> <span class="count" id="savedCount">0</span></button>
+    </section>
+    <section class="side-block">
+      <h2 class="side-title" data-i18n="nav_archive">Archive</h2>
+      <ol class="archive" id="archive"></ol>
+    </section>
+    <section class="side-block keys">
+      <h2 class="side-title" data-i18n="nav_shortcuts">Shortcuts</h2>
+      <p data-i18n-html="shortcuts"></p>
+    </section>
+  </aside>
+  <div class="scrim" data-action="menu"></div>
+  <main class="main" id="main" tabindex="-1"></main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="viewer/app.js"></script>
+</body>
+</html>

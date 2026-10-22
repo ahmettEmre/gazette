@@ -1,0 +1,6 @@
+* text=auto
+# The POSIX launcher must keep LF line endings, or Git Bash and macOS/Linux shells fail on "\r".
+gazette text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.cmd text eol=crlf

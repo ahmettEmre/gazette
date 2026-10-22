@@ -1,0 +1,1107 @@
+{
+  "_doc": "Curated source packs. /gazette-setup copies the packs that match your interests into config/sources.json (./gazette sources init --packs a,b). Add your own sources there, not here. Types: docs/sources.md",
+  "defaults": {
+    "max": 8,
+    "summary_chars": 260,
+    "first_window_hours": 72,
+    "max_window_days": 8
+  },
+  "packs": [
+    {
+      "id": "ai-labs",
+      "title": "AI labs (official)",
+      "desc": "Announcements, models, pricing and changelogs from OpenAI, Anthropic, Google, Mistral, Hugging Face.",
+      "sources": [
+        {
+          "id": "openai-news",
+          "name": "OpenAI",
+          "type": "feed",
+          "url": "https://openai.com/news/rss.xml",
+          "tier": "official",
+          "max": 10
+        },
+        {
+          "id": "anthropic",
+          "name": "Anthropic",
+          "type": "sitemap",
+          "url": "https://www.anthropic.com/sitemap.xml",
+          "tier": "official",
+          "include": [
+            "/news/",
+            "/research/",
+            "/engineering/",
+            "/claude/",
+            "/features/",
+            "/product/",
+            "/economic-futures/",
+            "/legal/"
+          ],
+          "track_updates": [
+            "/legal/",
+            "/claude/"
+          ],
+          "max": 12
+        },
+        {
+          "id": "claude-blog",
+          "name": "Claude Blog",
+          "type": "sitemap",
+          "url": "https://www.claude.com/sitemap.xml",
+          "tier": "official",
+          "include": [
+            "/blog"
+          ],
+          "exclude_url": "^https?://(www\\.)?claude\\.com/[a-z]{2}(-[a-z]{2})?/",
+          "max": 8
+        },
+        {
+          "id": "claude-release-notes",
+          "name": "Claude Platform sürüm notları",
+          "type": "watch",
+          "url": "https://docs.claude.com/en/release-notes/overview",
+          "tier": "official"
+        },
+        {
+          "id": "deepmind",
+          "name": "Google DeepMind",
+          "type": "feed",
+          "url": "https://deepmind.google/blog/rss.xml",
+          "tier": "official",
+          "max": 6
+        },
+        {
+          "id": "google-ai",
+          "name": "Google AI Blog",
+          "type": "feed",
+          "url": "https://blog.google/technology/ai/rss/",
+          "tier": "official",
+          "max": 6
+        },
+        {
+          "id": "gemini-changelog",
+          "name": "Gemini API sürüm notları",
+          "type": "watch",
+          "url": "https://ai.google.dev/gemini-api/docs/changelog",
+          "tier": "official"
+        },
+        {
+          "id": "openai-changelog",
+          "name": "OpenAI API sürüm notları",
+          "type": "watch",
+          "url": "https://developers.openai.com/changelog",
+          "tier": "official"
+        },
+        {
+          "id": "mistral",
+          "name": "Mistral AI",
+          "type": "feed",
+          "url": "https://mistral.ai/rss.xml",
+          "tier": "official",
+          "max": 5
+        },
+        {
+          "id": "huggingface-blog",
+          "name": "Hugging Face Blog",
+          "type": "feed",
+          "url": "https://huggingface.co/blog/feed.xml",
+          "tier": "official",
+          "max": 5
+        }
+      ]
+    },
+    {
+      "id": "ai-news",
+      "title": "AI news (press)",
+      "desc": "Tech press coverage of AI: TechCrunch, The Verge, Ars Technica, MIT Tech Review, Wired, The Decoder.",
+      "sources": [
+        {
+          "id": "techcrunch-ai",
+          "name": "TechCrunch",
+          "type": "feed",
+          "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+          "tier": "press",
+          "max": 10,
+          "exclude": "(?i)techcrunch disrupt|days to disrupt|hours to"
+        },
+        {
+          "id": "verge-ai",
+          "name": "The Verge",
+          "type": "feed",
+          "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
+          "tier": "press",
+          "max": 8
+        },
+        {
+          "id": "ars-ai",
+          "name": "Ars Technica",
+          "type": "feed",
+          "url": "https://arstechnica.com/ai/feed/",
+          "tier": "press",
+          "max": 6
+        },
+        {
+          "id": "mit-tr-ai",
+          "name": "MIT Technology Review",
+          "type": "feed",
+          "url": "https://www.technologyreview.com/topic/artificial-intelligence/feed",
+          "tier": "press",
+          "max": 5
+        },
+        {
+          "id": "wired-ai",
+          "name": "Wired",
+          "type": "feed",
+          "url": "https://www.wired.com/feed/tag/ai/latest/rss",
+          "tier": "press",
+          "max": 5
+        },
+        {
+          "id": "the-decoder",
+          "name": "The Decoder",
+          "type": "feed",
+          "url": "https://the-decoder.com/feed/",
+          "tier": "press",
+          "max": 6
+        }
+      ]
+    },
+    {
+      "id": "ai-community",
+      "title": "AI community and newsletters",
+      "desc": "Practitioners and newsletters: Simon Willison, Latent Space, Interconnects, Import AI, Reddit.",
+      "sources": [
+        {
+          "id": "reddit-ai",
+          "name": "Reddit r/LocalLLaMA + r/ClaudeAI",
+          "type": "feed",
+          "url": "https://www.reddit.com/r/LocalLLaMA+ClaudeAI/top/.rss?t=day",
+          "tier": "community",
+          "max": 12,
+          "summary_chars": 160
+        },
+        {
+          "id": "simonwillison",
+          "name": "Simon Willison",
+          "type": "feed",
+          "url": "https://simonwillison.net/atom/everything/",
+          "tier": "community",
+          "max": 8
+        },
+        {
+          "id": "smol-ainews",
+          "name": "AINews (smol.ai)",
+          "type": "feed",
+          "url": "https://news.smol.ai/rss.xml",
+          "tier": "community",
+          "max": 3,
+          "summary_chars": 500
+        },
+        {
+          "id": "latent-space",
+          "name": "Latent Space",
+          "type": "feed",
+          "url": "https://www.latent.space/feed",
+          "tier": "community",
+          "max": 3
+        },
+        {
+          "id": "interconnects",
+          "name": "Interconnects (Nathan Lambert)",
+          "type": "feed",
+          "url": "https://www.interconnects.ai/feed",
+          "tier": "community",
+          "max": 3
+        },
+        {
+          "id": "oneusefulthing",
+          "name": "One Useful Thing (Ethan Mollick)",
+          "type": "feed",
+          "url": "https://www.oneusefulthing.org/feed",
+          "tier": "community",
+          "max": 2
+        },
+        {
+          "id": "importai",
+          "name": "Import AI (Jack Clark)",
+          "type": "feed",
+          "url": "https://importai.substack.com/feed",
+          "tier": "community",
+          "max": 2
+        },
+        {
+          "id": "bensbites",
+          "name": "Ben's Bites",
+          "type": "feed",
+          "url": "https://www.bensbites.com/feed",
+          "tier": "community",
+          "max": 2
+        }
+      ]
+    },
+    {
+      "id": "ai-research",
+      "title": "AI research and models",
+      "desc": "Trending Hugging Face models and papers, research explainers.",
+      "sources": [
+        {
+          "id": "hf-trending",
+          "name": "Hugging Face — yükselen modeller",
+          "type": "hf_models",
+          "tier": "community",
+          "max": 10
+        },
+        {
+          "id": "hf-papers",
+          "name": "Hugging Face — günün makaleleri",
+          "type": "hf_papers",
+          "tier": "community",
+          "max": 8
+        },
+        {
+          "id": "raschka",
+          "name": "Ahead of AI (Sebastian Raschka)",
+          "type": "feed",
+          "url": "https://magazine.sebastianraschka.com/feed",
+          "tier": "community",
+          "max": 2
+        }
+      ]
+    },
+    {
+      "id": "ai-coding",
+      "title": "AI coding tools (releases)",
+      "desc": "Releases of Claude Code, Codex CLI, MCP and Ollama.",
+      "sources": [
+        {
+          "id": "rel-claude-code",
+          "name": "Claude Code sürümleri",
+          "type": "github_releases",
+          "repo": "anthropics/claude-code",
+          "tier": "official",
+          "max": 5,
+          "summary_chars": 500
+        },
+        {
+          "id": "rel-codex",
+          "name": "OpenAI Codex CLI sürümleri",
+          "type": "github_releases",
+          "repo": "openai/codex",
+          "tier": "official",
+          "max": 3,
+          "exclude": "(?i)alpha|nightly",
+          "summary_chars": 400
+        },
+        {
+          "id": "rel-mcp",
+          "name": "MCP spesifikasyonu",
+          "type": "github_releases",
+          "repo": "modelcontextprotocol/modelcontextprotocol",
+          "tier": "official",
+          "max": 2,
+          "summary_chars": 400
+        },
+        {
+          "id": "rel-ollama",
+          "name": "Ollama sürümleri",
+          "type": "github_releases",
+          "repo": "ollama/ollama",
+          "tier": "official",
+          "max": 2,
+          "summary_chars": 400
+        }
+      ]
+    },
+    {
+      "id": "dev-platforms",
+      "title": "Developer platforms",
+      "desc": "GitHub, VS Code, Cursor, Vercel, Cloudflare, Docker, Google and AWS developer news.",
+      "sources": [
+        {
+          "id": "github-changelog",
+          "name": "GitHub Changelog",
+          "type": "feed",
+          "url": "https://github.blog/changelog/feed/",
+          "tier": "official",
+          "max": 8
+        },
+        {
+          "id": "github-blog",
+          "name": "GitHub Blog",
+          "type": "feed",
+          "url": "https://github.blog/feed/",
+          "tier": "official",
+          "max": 5
+        },
+        {
+          "id": "vscode",
+          "name": "VS Code",
+          "type": "feed",
+          "url": "https://code.visualstudio.com/feed.xml",
+          "tier": "official",
+          "max": 4
+        },
+        {
+          "id": "cursor",
+          "name": "Cursor Changelog",
+          "type": "feed",
+          "url": "https://cursor.com/changelog/rss.xml",
+          "tier": "official",
+          "max": 4
+        },
+        {
+          "id": "vercel",
+          "name": "Vercel",
+          "type": "feed",
+          "url": "https://vercel.com/atom",
+          "tier": "official",
+          "max": 4
+        },
+        {
+          "id": "cloudflare",
+          "name": "Cloudflare Blog",
+          "type": "feed",
+          "url": "https://blog.cloudflare.com/rss/",
+          "tier": "official",
+          "max": 5
+        },
+        {
+          "id": "docker",
+          "name": "Docker Blog",
+          "type": "feed",
+          "url": "https://www.docker.com/blog/feed/",
+          "tier": "official",
+          "max": 4
+        },
+        {
+          "id": "google-dev",
+          "name": "Google Developers Blog",
+          "type": "feed",
+          "url": "https://developers.googleblog.com/feeds/posts/default",
+          "tier": "official",
+          "max": 6
+        },
+        {
+          "id": "aws-ml",
+          "name": "AWS Machine Learning Blog",
+          "type": "feed",
+          "url": "https://aws.amazon.com/blogs/machine-learning/feed/",
+          "tier": "official",
+          "max": 3
+        }
+      ]
+    },
+    {
+      "id": "dev-community",
+      "title": "Developer community",
+      "desc": "Hacker News, Show HN, Product Hunt, The Pragmatic Engineer, rising GitHub repos.",
+      "sources": [
+        {
+          "id": "hn-top",
+          "name": "Hacker News",
+          "type": "hn",
+          "tags": "story",
+          "min_points": 150,
+          "tier": "community",
+          "max": 25
+        },
+        {
+          "id": "hn-show",
+          "name": "Show HN",
+          "type": "hn",
+          "tags": "show_hn",
+          "min_points": 60,
+          "tier": "community",
+          "max": 10
+        },
+        {
+          "id": "producthunt",
+          "name": "Product Hunt",
+          "type": "feed",
+          "url": "https://www.producthunt.com/feed",
+          "tier": "community",
+          "max": 8,
+          "summary_chars": 160
+        },
+        {
+          "id": "pragmatic-engineer",
+          "name": "The Pragmatic Engineer",
+          "type": "feed",
+          "url": "https://newsletter.pragmaticengineer.com/feed",
+          "tier": "community",
+          "max": 3
+        },
+        {
+          "id": "gh-rising",
+          "name": "GitHub — yükselen yeni repolar",
+          "type": "github_rising",
+          "days": 7,
+          "tier": "community",
+          "max": 10
+        }
+      ]
+    },
+    {
+      "id": "web-frontend",
+      "title": "Web and frontend",
+      "desc": "Releases of React, Vue, Vite, Next.js, Svelte, Tailwind, TypeScript, Node.js; Smashing Magazine.",
+      "sources": [
+        {
+          "id": "rel-react",
+          "name": "React sürümleri",
+          "type": "github_releases",
+          "repo": "facebook/react",
+          "tier": "official",
+          "max": 3,
+          "summary_chars": 400
+        },
+        {
+          "id": "rel-vue",
+          "name": "Vue sürümleri",
+          "type": "github_releases",
+          "repo": "vuejs/core",
+          "tier": "official",
+          "max": 3,
+          "summary_chars": 400
+        },
+        {
+          "id": "rel-vite",
+          "name": "Vite sürümleri",
+          "type": "github_releases",
+          "repo": "vitejs/vite",
+          "tier": "official",
+          "max": 3,
+          "summary_chars": 400
+        },
+        {
+          "id": "rel-nextjs",
+          "name": "next.js releases",
+          "type": "github_releases",
+          "tier": "official",
+          "repo": "vercel/next.js",
+          "max": 2,
+          "summary_chars": 400,
+          "exclude": "(?i)canary"
+        },
+        {
+          "id": "rel-svelte",
+          "name": "svelte releases",
+          "type": "github_releases",
+          "tier": "official",
+          "repo": "sveltejs/svelte",
+          "max": 2,
+          "summary_chars": 400
+        },
+        {
+          "id": "rel-tailwind",
+          "name": "tailwindcss releases",
+          "type": "github_releases",
+          "tier": "official",
+          "repo": "tailwindlabs/tailwindcss",
+          "max": 2,
+          "summary_chars": 400
+        },
+        {
+          "id": "rel-typescript",
+          "name": "TypeScript releases",
+          "type": "github_releases",
+          "tier": "official",
+          "repo": "microsoft/TypeScript",
+          "max": 2,
+          "summary_chars": 400
+        },
+        {
+          "id": "rel-node",
+          "name": "node releases",
+          "type": "github_releases",
+          "tier": "official",
+          "repo": "nodejs/node",
+          "max": 2,
+          "summary_chars": 400
+        },
+        {
+          "id": "smashing",
+          "name": "Smashing Magazine",
+          "type": "feed",
+          "tier": "community",
+          "url": "https://www.smashingmagazine.com/feed/",
+          "max": 3
+        }
+      ]
+    },
+    {
+      "id": "python",
+      "title": "Python",
+      "desc": "Python core blog, FastAPI, Pydantic, uv releases, Django news, Real Python.",
+      "sources": [
+        {
+          "id": "rel-fastapi",
+          "name": "FastAPI sürümleri",
+          "type": "github_releases",
+          "repo": "fastapi/fastapi",
+          "tier": "official",
+          "max": 3,
+          "summary_chars": 400
+        },
+        {
+          "id": "python-insider",
+          "name": "Python Insider",
+          "type": "feed",
+          "tier": "official",
+          "url": "https://blog.python.org/feeds/posts/default",
+          "max": 3
+        },
+        {
+          "id": "rel-pydantic",
+          "name": "pydantic releases",
+          "type": "github_releases",
+          "tier": "official",
+          "repo": "pydantic/pydantic",
+          "max": 2,
+          "summary_chars": 400
+        },
+        {
+          "id": "rel-uv",
+          "name": "uv releases",
+          "type": "github_releases",
+          "tier": "official",
+          "repo": "astral-sh/uv",
+          "max": 2,
+          "summary_chars": 400
+        },
+        {
+          "id": "django",
+          "name": "Django weblog",
+          "type": "feed",
+          "tier": "official",
+          "url": "https://www.djangoproject.com/rss/weblog/",
+          "max": 3
+        },
+        {
+          "id": "real-python",
+          "name": "Real Python",
+          "type": "feed",
+          "tier": "community",
+          "url": "https://realpython.com/atom.xml",
+          "max": 3
+        }
+      ]
+    },
+    {
+      "id": "mobile-desktop",
+      "title": "Mobile and desktop apps",
+      "desc": "Android developers blog, Swift.org, Capacitor, Electron and React Native releases.",
+      "sources": [
+        {
+          "id": "android-dev",
+          "name": "Android Developers Blog",
+          "type": "feed",
+          "url": "https://android-developers.googleblog.com/atom.xml",
+          "tier": "official",
+          "max": 4
+        },
+        {
+          "id": "rel-capacitor",
+          "name": "Capacitor sürümleri",
+          "type": "github_releases",
+          "repo": "ionic-team/capacitor",
+          "tier": "official",
+          "max": 3,
+          "summary_chars": 400
+        },
+        {
+          "id": "rel-electron",
+          "name": "Electron sürümleri",
+          "type": "github_releases",
+          "repo": "electron/electron",
+          "tier": "official",
+          "max": 3,
+          "summary_chars": 400
+        },
+        {
+          "id": "rel-react-native",
+          "name": "react-native releases",
+          "type": "github_releases",
+          "tier": "official",
+          "repo": "facebook/react-native",
+          "max": 2,
+          "summary_chars": 400
+        },
+        {
+          "id": "swift",
+          "name": "Swift.org blog",
+          "type": "feed",
+          "tier": "official",
+          "url": "https://www.swift.org/atom.xml",
+          "max": 3
+        }
+      ]
+    },
+    {
+      "id": "creative-dev",
+      "title": "Creative coding and video",
+      "desc": "Remotion and three.js releases.",
+      "sources": [
+        {
+          "id": "rel-remotion",
+          "name": "Remotion sürümleri",
+          "type": "github_releases",
+          "repo": "remotion-dev/remotion",
+          "tier": "official",
+          "max": 2,
+          "summary_chars": 400
+        },
+        {
+          "id": "rel-threejs",
+          "name": "three.js releases",
+          "type": "github_releases",
+          "tier": "official",
+          "repo": "mrdoob/three.js",
+          "max": 2,
+          "summary_chars": 400
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "title": "Security",
+      "desc": "Breaches, vulnerabilities and analysis: Krebs, BleepingComputer, The Hacker News, Schneier.",
+      "sources": [
+        {
+          "id": "krebs",
+          "name": "Krebs on Security",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://krebsonsecurity.com/feed/",
+          "max": 3
+        },
+        {
+          "id": "bleepingcomputer",
+          "name": "BleepingComputer",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://www.bleepingcomputer.com/feed/",
+          "max": 8
+        },
+        {
+          "id": "thehackernews",
+          "name": "The Hacker News",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://feeds.feedburner.com/TheHackersNews",
+          "max": 6
+        },
+        {
+          "id": "schneier",
+          "name": "Schneier on Security",
+          "type": "feed",
+          "tier": "community",
+          "url": "https://www.schneier.com/feed/atom/",
+          "max": 3
+        }
+      ]
+    },
+    {
+      "id": "tech-general",
+      "title": "General tech news",
+      "desc": "Front pages of The Verge, Ars Technica, TechCrunch and The Register.",
+      "sources": [
+        {
+          "id": "the-register",
+          "name": "The Register",
+          "type": "feed",
+          "url": "https://www.theregister.com/headlines.atom",
+          "tier": "press",
+          "max": 4
+        },
+        {
+          "id": "verge",
+          "name": "The Verge",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://www.theverge.com/rss/index.xml",
+          "max": 8
+        },
+        {
+          "id": "ars",
+          "name": "Ars Technica",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://feeds.arstechnica.com/arstechnica/index",
+          "max": 8
+        },
+        {
+          "id": "techcrunch",
+          "name": "TechCrunch",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://techcrunch.com/feed/",
+          "max": 8,
+          "exclude": "(?i)techcrunch disrupt|days to disrupt|hours to"
+        }
+      ]
+    },
+    {
+      "id": "startups-vc",
+      "title": "Startups and venture capital",
+      "desc": "Funding rounds and startup ecosystems: TechCrunch Startups, Sifted, tech.eu, EU-Startups.",
+      "sources": [
+        {
+          "id": "techcrunch-startups",
+          "name": "TechCrunch Startups",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://techcrunch.com/category/startups/feed/",
+          "max": 6
+        },
+        {
+          "id": "sifted",
+          "name": "Sifted (Avrupa girişimleri)",
+          "type": "feed",
+          "url": "https://sifted.eu/feed",
+          "tier": "press",
+          "max": 6
+        },
+        {
+          "id": "tech-eu",
+          "name": "Tech.eu",
+          "type": "feed",
+          "url": "https://tech.eu/feed/",
+          "tier": "press",
+          "max": 5
+        },
+        {
+          "id": "eu-startups",
+          "name": "EU-Startups",
+          "type": "feed",
+          "url": "https://www.eu-startups.com/feed/",
+          "tier": "press",
+          "max": 4
+        }
+      ]
+    },
+    {
+      "id": "markets-strategy",
+      "title": "Markets and strategy",
+      "desc": "Big tech and markets: Bloomberg, CNBC, Financial Times; analysis by Stratechery and Benedict Evans.",
+      "sources": [
+        {
+          "id": "bloomberg-tech",
+          "name": "Bloomberg Technology",
+          "type": "feed",
+          "url": "https://feeds.bloomberg.com/technology/news.rss",
+          "tier": "press",
+          "max": 8
+        },
+        {
+          "id": "cnbc-tech",
+          "name": "CNBC Technology",
+          "type": "feed",
+          "url": "https://www.cnbc.com/id/19854910/device/rss/rss.html",
+          "tier": "press",
+          "max": 6
+        },
+        {
+          "id": "ft-tech",
+          "name": "Financial Times (teknoloji)",
+          "type": "feed",
+          "url": "https://www.ft.com/technology?format=rss",
+          "tier": "press",
+          "max": 6,
+          "note": "Paywalled: only headline and summary are used."
+        },
+        {
+          "id": "stratechery",
+          "name": "Stratechery (Ben Thompson)",
+          "type": "feed",
+          "url": "https://stratechery.com/feed/",
+          "tier": "community",
+          "max": 3
+        },
+        {
+          "id": "ben-evans",
+          "name": "Benedict Evans",
+          "type": "feed",
+          "url": "https://www.ben-evans.com/benedictevans?format=rss",
+          "tier": "community",
+          "max": 2
+        }
+      ]
+    },
+    {
+      "id": "germany",
+      "title": "Germany (German-language)",
+      "desc": "heise developer, t3n, Handelsblatt Technologie, Gründerszene.",
+      "sources": [
+        {
+          "id": "heise-dev",
+          "name": "heise Developer",
+          "type": "feed",
+          "url": "https://www.heise.de/developer/rss/news-atom.xml",
+          "tier": "press",
+          "max": 5
+        },
+        {
+          "id": "t3n",
+          "name": "t3n",
+          "type": "feed",
+          "url": "https://t3n.de/rss.xml",
+          "tier": "press",
+          "max": 4
+        },
+        {
+          "id": "handelsblatt-tech",
+          "name": "Handelsblatt Technologie",
+          "type": "feed",
+          "url": "https://www.handelsblatt.com/contentexport/feed/technologie",
+          "tier": "press",
+          "max": 4
+        },
+        {
+          "id": "gruenderszene",
+          "name": "Gründerszene",
+          "type": "feed",
+          "url": "https://www.gruenderszene.de/feed",
+          "tier": "press",
+          "max": 3
+        }
+      ]
+    },
+    {
+      "id": "turkey",
+      "title": "Turkey (Turkish-language)",
+      "desc": "Webrazzi and Egirisim: Turkish tech and startup news.",
+      "sources": [
+        {
+          "id": "webrazzi",
+          "name": "Webrazzi",
+          "type": "feed",
+          "url": "https://webrazzi.com/feed/",
+          "tier": "press",
+          "max": 3
+        },
+        {
+          "id": "egirisim",
+          "name": "Egirisim",
+          "type": "feed",
+          "url": "https://egirisim.com/feed/",
+          "tier": "press",
+          "max": 2
+        }
+      ]
+    },
+    {
+      "id": "eu-law-policy",
+      "title": "EU law and digital policy",
+      "desc": "European Commission digital strategy, EU AI Act, noyb, EFF, netzpolitik.",
+      "sources": [
+        {
+          "id": "eu-digital",
+          "name": "Avrupa Komisyonu — dijital strateji",
+          "type": "feed",
+          "url": "https://digital-strategy.ec.europa.eu/en/rss.xml",
+          "tier": "official",
+          "max": 5
+        },
+        {
+          "id": "ai-act",
+          "name": "EU AI Act Newsletter",
+          "type": "feed",
+          "url": "https://artificialintelligenceact.eu/feed/",
+          "tier": "community",
+          "max": 3
+        },
+        {
+          "id": "noyb",
+          "name": "noyb (GDPR şikâyetleri)",
+          "type": "feed",
+          "url": "https://noyb.eu/en/rss",
+          "tier": "community",
+          "max": 3
+        },
+        {
+          "id": "eff",
+          "name": "EFF",
+          "type": "feed",
+          "url": "https://www.eff.org/rss/updates.xml",
+          "tier": "community",
+          "max": 3
+        },
+        {
+          "id": "netzpolitik",
+          "name": "netzpolitik.org",
+          "type": "feed",
+          "url": "https://netzpolitik.org/feed/",
+          "tier": "community",
+          "max": 3
+        }
+      ]
+    },
+    {
+      "id": "turkey-law",
+      "title": "Turkey data protection (KVKK)",
+      "desc": "Announcements of the Turkish data protection authority.",
+      "sources": [
+        {
+          "id": "kvkk",
+          "name": "KVKK duyuruları",
+          "type": "watch",
+          "url": "https://www.kvkk.gov.tr/Icerik/Liste/Duyurular",
+          "tier": "official"
+        }
+      ]
+    },
+    {
+      "id": "opportunities",
+      "title": "Hackathons",
+      "desc": "Open and upcoming hackathons on Devpost, sorted by prize.",
+      "sources": [
+        {
+          "id": "devpost",
+          "name": "Devpost hackathonları",
+          "type": "devpost",
+          "tier": "official",
+          "max": 10
+        }
+      ]
+    },
+    {
+      "id": "science",
+      "title": "Science",
+      "desc": "Quanta Magazine, Science (AAAS) news, New Scientist, Ars Technica science.",
+      "sources": [
+        {
+          "id": "quanta",
+          "name": "Quanta Magazine",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://www.quantamagazine.org/feed/",
+          "max": 4
+        },
+        {
+          "id": "science-news",
+          "name": "Science (AAAS) news",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://www.science.org/rss/news_current.xml",
+          "max": 6
+        },
+        {
+          "id": "newscientist",
+          "name": "New Scientist",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://www.newscientist.com/feed/home/",
+          "max": 6
+        },
+        {
+          "id": "ars-science",
+          "name": "Ars Technica Science",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://arstechnica.com/science/feed/",
+          "max": 4
+        }
+      ]
+    },
+    {
+      "id": "space",
+      "title": "Space",
+      "desc": "NASA news and SpaceNews.",
+      "sources": [
+        {
+          "id": "nasa",
+          "name": "NASA",
+          "type": "feed",
+          "tier": "official",
+          "url": "https://www.nasa.gov/feed/",
+          "max": 5
+        },
+        {
+          "id": "spacenews",
+          "name": "SpaceNews",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://spacenews.com/feed/",
+          "max": 5
+        }
+      ]
+    },
+    {
+      "id": "climate-energy",
+      "title": "Climate and energy",
+      "desc": "Carbon Brief, Electrek, Canary Media.",
+      "sources": [
+        {
+          "id": "carbonbrief",
+          "name": "Carbon Brief",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://www.carbonbrief.org/feed/",
+          "max": 4
+        },
+        {
+          "id": "electrek",
+          "name": "Electrek",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://electrek.co/feed/",
+          "max": 4
+        },
+        {
+          "id": "canary",
+          "name": "Canary Media",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://www.canarymedia.com/rss.rss",
+          "max": 4
+        }
+      ]
+    },
+    {
+      "id": "design-product",
+      "title": "Design and product",
+      "desc": "Nielsen Norman Group, Lenny's Newsletter.",
+      "sources": [
+        {
+          "id": "nngroup",
+          "name": "Nielsen Norman Group",
+          "type": "feed",
+          "tier": "community",
+          "url": "https://www.nngroup.com/feed/rss/",
+          "max": 3
+        },
+        {
+          "id": "lenny",
+          "name": "Lenny's Newsletter",
+          "type": "feed",
+          "tier": "community",
+          "url": "https://www.lennysnewsletter.com/feed",
+          "max": 3
+        }
+      ]
+    },
+    {
+      "id": "crypto",
+      "title": "Crypto and web3",
+      "desc": "CoinDesk and Decrypt.",
+      "sources": [
+        {
+          "id": "coindesk",
+          "name": "CoinDesk",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://www.coindesk.com/arc/outboundfeeds/rss/",
+          "max": 6
+        },
+        {
+          "id": "decrypt",
+          "name": "Decrypt",
+          "type": "feed",
+          "tier": "press",
+          "url": "https://decrypt.co/feed",
+          "max": 5
+        }
+      ]
+    }
+  ]
+}

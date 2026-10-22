@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gazette collect:*)",
+      "Bash(./gazette read:*)",
+      "Bash(./gazette publish:*)",
+      "Bash(./gazette learn:*)",
+      "Bash(./gazette sources:*)",
+      "Bash(./gazette doctor:*)",
+      "Bash(./gazette open:*)",
+      "Bash(./gazette schedule status:*)",
+      "Bash(./gazette secret check:*)",
+      "Bash(./gazette deliver --check:*)",
+      "Bash(./gazette deliver --preview:*)",
+      "Bash(tail:*)",
+      "Bash(head:*)",
+      "Edit(./data/editions/**)",
+      "WebSearch"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+#!/bin/sh
+# Gazette launcher for macOS, Linux and Git Bash on Windows (the shell Claude Code uses there).
+# Picks the first Python 3.9+ that really runs: on Windows "python3" can be the Microsoft Store stub.
+here=$(dirname "$0")
+for c in python3 python py; do
+  if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import sys; sys.exit(sys.version_info < (3, 9))' >/dev/null 2>&1; then
+    exec "$c" -I "$here/scripts/cli.py" "$@"
+  fi
+done
+echo "Gazette needs Python 3.9 or newer (python3, python or py on PATH)." >&2
+exit 127

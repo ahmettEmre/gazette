@@ -15,9 +15,10 @@ Claude Code plan.
 ## What you get
 
 - **A reader** (`gazette.html`): sections, archive, search, read/saved marks, dark mode, keyboard shortcuts. Opens from
-  disk, no server.
-- **A short e-mail** with the big picture and a few highlights, the **full edition attached as a PDF** (or HTML/EPUB),
-  and/or an **EPUB for your Kindle** — sent automatically after each scheduled edition, from your own mail account.
+  disk, no server. Every edition is kept here, on your computer — this is all you need.
+- **Optional:** a short e-mail with the big picture and a few highlights, the **full edition attached as a PDF** (or
+  HTML/EPUB), and/or an **EPUB for your Kindle** — sent after each scheduled edition, from your own mail account.
+  Handy on a phone; skip it and nothing about e-mail is ever set up.
 - **Trust signals on every story:** official / press / community source, "Unverified" when only one non-official
   source exists, an importance score and a hype meter. Facts and opinion are kept apart.
 - **"Why it matters to you"** written from your own profile: your job, your tools, your country.
@@ -120,9 +121,9 @@ The setup registers **one job with your operating system's scheduler**:
 | Linux | your crontab | skipped |
 
 At the scheduled time `scripts/scheduled.py` starts Claude Code headless (`claude -p "/gazette scheduled"`), waits
-for it to publish, then sends the edition to your inbox/Kindle. If you already made an edition in the last
-12 hours, it sends that one instead of writing a new one. If something fails, you get a short e-mail and the
-details are in `logs/scheduled.log`.
+for it to publish, then — if you set up e-mail or Kindle — sends the edition there. If you already made an edition
+in the last 12 hours, no new one is written. If something fails, the details are in `logs/scheduled.log` (and, with
+e-mail set up, you get a short e-mail about it).
 
 **Cost:** every edition is real Claude work on *your* plan — roughly 5–20 minutes (a 30-story weekly edition took
 16 minutes in testing). Start with one to three editions a week. To save quota, set `"run": {"model": "sonnet"}` in
@@ -130,7 +131,9 @@ details are in `logs/scheduled.log`.
 
 Claude Desktop users can also use its built-in local scheduled tasks to run `/gazette` instead.
 
-## E-mail and Kindle
+## E-mail and Kindle (optional)
+
+Without them, scheduled editions simply appear in your reader: run `./gazette open` or open `gazette.html`.
 
 Sending uses an e-mail account **you** own (the sender) and goes to any addresses you choose — yours, a colleague's,
 a team list. Gazette has no mail server and no default sender; it only logs in to your account with your password.

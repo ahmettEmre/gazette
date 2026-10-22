@@ -54,9 +54,12 @@ let them approve or adjust. One lesson per edition is the default.
   or manual only. Be honest about cost: each automatic edition is roughly 5–20 minutes of Claude work on **their
   own subscription**, and the computer must be on at that time (Windows and macOS catch up after sleep or when
   the PC is next on; Linux cron skips missed runs). Recommend 1–3 editions a week to start.
-- **Delivery:** the local reader (`gazette.html`) always works. Optionally: e-mail (to which address or addresses),
-  Kindle (their @kindle.com address), both, or neither. Ask whether manual `/gazette` runs should also be sent
-  (default: no, only scheduled ones).
+- **Delivery:** every edition lands in the local reader (`gazette.html`): an HTML page on their own computer with
+  the archive, search and saved stories. That is the main way to read and needs no e-mail account at all.
+  **Default: reader only.** Offer e-mail and Kindle as optional extras — useful for reading on a phone or away
+  from the computer — and set up nothing for them unless the user wants it. If they do: e-mail (to which address
+  or addresses), Kindle (their @kindle.com address), or both. Ask whether manual `/gazette` runs should also be
+  sent (default: no, only scheduled ones).
   - The e-mail is short — the big picture, 3–5 highlights with a two-sentence excerpt, upcoming deadlines, the
     lesson title — and the **whole edition is attached**. Ask the format: **PDF** (default; opens inline in Gmail
     and most mail apps, made by a Chrome/Edge/Chromium/Brave browser already on the computer — `./gazette doctor`

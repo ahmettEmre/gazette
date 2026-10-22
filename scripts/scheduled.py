@@ -57,6 +57,11 @@ def wait_for_network(tries=10):
     return False
 
 
+def delivery_on(cfg):
+    d = cfg.get("delivery") or {}
+    return any((d.get(c) or {}).get("enabled") and (d.get(c) or {}).get("to") for c in ("email", "kindle"))
+
+
 def deliver(*args):
     r = subprocess.run([sys.executable, "-I", str(ROOT / "scripts" / "deliver.py"), *args],
                        capture_output=True, text=True, encoding="utf-8", errors="replace")
@@ -103,13 +108,17 @@ def run(cfg, rec, cmd, prompt):
     if before and "--prompt" not in sys.argv:
         created = parse_date(load_json(EDITIONS / f"{before}.json", {}).get("created"))
         if created and (now_utc() - created).total_seconds() < recent_h * 3600:
+            if not delivery_on(cfg):
+                log(f"===== finished (edition {before} is younger than {recent_h:g} h and already in the reader)")
+                return
             log(f"edition {before} is younger than {recent_h:g} h: delivering it instead of writing a new one")
             ok = deliver(before) == 0
             log(f"===== finished ({'delivered the recent edition' if ok else 'delivery of the recent edition failed'})")
             return
     if not wait_for_network():
         log("no network after 10 minutes; giving up")
-        deliver("--notify-failure")
+        if delivery_on(cfg):
+            deliver("--notify-failure")
         log("===== finished (no network)")
         return
 
@@ -132,12 +141,15 @@ def run(cfg, rec, cmd, prompt):
     after = newest_edition()
     if "--prompt" in sys.argv:
         log("===== finished (test prompt, no delivery)")
+    elif after and after != before and not delivery_on(cfg):
+        log(f"===== finished (edition {after}, in the reader)")
     elif after and after != before:
         ok = deliver(after) == 0
         log(f"===== finished (edition {after}{'' if ok else ', delivery failed'})")
     else:
         log("no new edition was published")
-        deliver("--notify-failure")
+        if delivery_on(cfg):
+            deliver("--notify-failure")
         log("===== finished (failed)")
 
 

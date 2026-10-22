@@ -188,6 +188,9 @@ def main():
         return
     if args.test or args.notify_failure:
         to = recipients(cfg, "email")
+        if not to and args.notify_failure:
+            print("No e-mail delivery set up, so no failure e-mail; the details are in logs/scheduled.log.")
+            return
         if not to:
             sys.exit("No e-mail recipients enabled in settings (delivery.email).")
         s = smtp_settings(cfg)
